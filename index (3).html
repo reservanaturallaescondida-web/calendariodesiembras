@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#3E5F3A">
+<meta name="apple-mobile-web-app-title" content="Calendario Lunar">
+<meta name="description" content="Calendario lunar de siembras para Pacho, Cundinamarca.">
+<title>🌱 Calendario Lunar de Siembras</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --verde-bosque: #3E5F3A;
+    --verde-salvia: #7A9B76;
+    --verde-oliva: #556B2F;
+    --verde-planta: #7BA05B;
+    --verde-menta: #B8D4B0;
+    --tierra-clara: #D4C4A8;
+    --tierra-media: #A68A64;
+    --crema: #F5EFE3;
+    --cafe-suave: #8B7355;
+    --cafe-oscuro: #4A3F35;
+    --negro-tierra: #3D3229;
+    --morado-terroso: #8B6B8F;
+    --arena: #E8DCC0;
+    --texto: #2E3A2C;
+    --texto-suave: #4A5A48;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(180deg, #A8C9A0 0%, #8FB786 35%, #7A9B76 70%, #6B8A67 100%);
+    background-attachment: fixed;
+    color: var(--texto);
+    padding-bottom: 80px;
+    overflow-x: hidden;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0%, transparent 25%),
+      radial-gradient(circle at 85% 60%, rgba(255,255,255,0.06) 0%, transparent 30%);
+    z-index: 0;
+  }
+  header {
+    background: linear-gradient(135deg, #2F4A2C 0%, #3E5F3A 50%, #4E7249 100%);
+    color: var(--crema);
+    padding: 16px 20px 14px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 18px rgba(20, 35, 18, 0.35);
+    border-bottom: 3px solid var(--tierra-media);
+  }
+  header h1 {
+    font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25); line-height: 1.2; padding-right: 130px;
+  }
+  header p {
+    font-size: 10.5px; opacity: 0.9; margin-top: 4px; color: var(--verde-menta);
+    padding-right: 130px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  #ubicacionTexto { font-weight: 600; color: #FFF; }
+  .location-badge {
+    background: rgba(255,255,255,0.18); padding: 3px 9px; border-radius: 8px;
+    font-size: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.25);
+    font-weight: 600; color: #FFF;
+  }
+  .location-badge:active { background: rgba(255,255,255,0.35); }
+  .header-actions {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    display: flex; gap: 6px;
+  }
+  .header-btn {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+    color: var(--crema); width: 34px; height: 34px; border-radius: 10px;
+    cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
+    font-family: inherit;
+  }
+  .header-btn:active { transform: scale(0.92); }
+
+  .container { padding: 14px; max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .card {
+    background: #FDFBF5; border-radius: 16px; padding: 16px; margin-bottom: 14px;
+    box-shadow: 0 3px 14px rgba(46, 58, 44, 0.12);
+    border: 1px solid rgba(212, 196, 168, 0.4);
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
+  .card h2 {
+    font-size: 14px; margin-bottom: 12px; color: var(--verde-oliva);
+    display: flex; align-items: center; gap: 8px; font-weight: 700;
+  }
+  .card h2::before {
+    content: ''; width: 4px; height: 15px;
+    background: linear-gradient(180deg, var(--verde-planta), var(--verde-salvia));
+    border-radius: 2px; flex-shrink: 0;
+  }
+
+  .ubicacion-selector {
+    background: linear-gradient(135deg, #FDFBF5 0%, #F0E9D9 100%);
+    border-radius: 18px; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 6px 20px rgba(46, 58, 44, 0.15);
+    border: 2px solid var(--tierra-clara); text-align: center;
+  }
+  .ubicacion-selector h3 { font-size: 16px; color: var(--verde-oliva); margin-bottom: 6px; }
+  .ubicacion-selector p.subtitulo { font-size: 12px; color: var(--texto-suave); margin-bottom: 16px; }
+  .ubicacion-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px; margin-bottom: 14px;
+  }
+  .ubicacion-opcion {
+    background: #FFFFFF; border: 2px solid var(--tierra-clara); border-radius: 14px;
+    padding: 14px 10px; cursor: pointer; text-align: center; font-family: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: all 0.2s; position: relative;
+  }
+  .ubicacion-opcion.seleccionada {
+    border-color: var(--verde-planta);
+    background: linear-gradient(135deg, #F0F7EC, #E0EED9);
+    box-shadow: 0 4px 14px rgba(85, 107, 47, 0.22);
+  }
+  .ubicacion-opcion .icon { font-size: 28px; line-height: 1; }
+  .ubicacion-opcion .nombre { font-size: 12.5px; font-weight: 700; color: var(--verde-oliva); line-height: 1.2; }
+  .ubicacion-opcion .detalle { font-size: 10px; color: var(--texto-suave); line-height: 1.3; }
+  .ubicacion-opcion .check-ubi {
+    position: absolute; top: 8px; right: 8px; background: var(--verde-planta); color: white;
+    width: 20px; height: 20px; border-radius: 50%; display: none;
+    align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+  }
+  .ubicacion-opcion.seleccionada .check-ubi { display: flex; }
+
+  .fase-hero {
+    background: #000000; color: var(--crema); border-radius: 20px; padding: 16px;
+    margin-bottom: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255,255,255,0.12);
+    display: grid; grid-template-columns: 1fr 1.15fr; gap: 14px;
+    position: relative; overflow: hidden;
+  }
+  .fase-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 20%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 32% 8%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 68% 22%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 88% 12%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 22% 78%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 78% 88%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 48% 52%, #fff 50%, transparent),
+      radial-gradient(1px 1px at 92% 62%, #fff 50%, transparent);
+    opacity: 0.5; pointer-events: none;
+  }
+  .fase-hero .col-izq {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; position: relative; z-index: 1; padding: 6px 0;
+  }
+  .fase-hero .luna-grande {
+    font-size: 84px; line-height: 1;
+    filter: drop-shadow(0 0 24px rgba(255,255,255,0.45));
+    animation: flotar 4s ease-in-out infinite; margin-bottom: 8px; display: block;
+  }
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .fase-hero .nombre {
+    font-size: 16px; font-weight: 800; letter-spacing: 1px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6); color: #FFFFFF;
+  }
+  .fase-hero .dia { font-size: 10.5px; opacity: 0.85; margin-top: 4px; color: #CCCCCC; }
+  .fase-hero .reco {
+    font-size: 10.5px; margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.2); line-height: 1.4; color: #E8DCC0;
+  }
+  .fase-hero .col-der {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .almanaque-titulo {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    color: #B8D4B0; text-align: center; margin-bottom: 6px;
+  }
+  .almanaque-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .alm-dia-sem {
+    text-align: center; font-size: 8px; font-weight: 700; color: #888;
+    padding: 2px 0; text-transform: uppercase;
+  }
+  .alm-dia {
+    aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center;
+    justify-content: center; font-size: 9px; font-weight: 700; color: #FFFFFF;
+    background: rgba(255,255,255,0.06);
+  }
+  .alm-dia.menguante { background: #8B6B8F; }
+  .alm-dia.nueva { background: #1a1a1a; border: 1px solid #444; }
+  .alm-dia.creciente { background: #7BA05B; }
+  .alm-dia.llena { background: #E8DCC0; color: #3D3229; }
+  .alm-dia.hoy { outline: 2px solid #F0C674; outline-offset: 1px; }
+  .almanaque-leyenda {
+    display: flex; justify-content: center; gap: 6px; margin-top: 6px;
+    font-size: 8px; color: #AAA;
+  }
+  .almanaque-leyenda span { display: flex; align-items: center; gap: 3px; }
+  .almanaque-leyenda i {
+    width: 7px; height: 7px; border-radius: 2px; display: inline-block; font-style: normal;
+  }
+
+  .clima-widget {
+    display: flex; align-items: center; justify-content: space-around;
+    background: linear-gradient(135deg, #EFF6EB, #DCE9D5);
+    border-radius: 12px; padding: 10px 8px; margin-bottom: 14px;
+    border: 1px solid rgba(122, 155, 118, 0.3);
+    box-shadow: 0 3px 14px rgba(46, 58, 44, 0.12);
+  }
+  .clima-item { text-align: center; flex: 1; }
+  .clima-item .icon { font-size: 22px; display: block; }
+  .clima-item .valor { font-size: 14px; font-weight: 700; color: var(--verde-oliva); margin-top: 1px; }
+  .clima-item .label { font-size: 9px; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .riego-widget {
+    background: linear-gradient(135deg, #E0F0F5, #D0E8F0);
+    border-radius: 14px; padding: 14px; margin-bottom: 14px;
+    border: 1px solid rgba(90, 150, 180, 0.3);
+    box-shadow: 0 3px 14px rgba(46, 58, 44, 0.12);
+  }
+  .riego-widget .riego-titulo {
+    font-size: 13px; font-weight: 800; color: #2C5F7A; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .riego-widget .riego-texto { font-size: 12px; line-height: 1.6; color: #2C4A5A; }
+  .riego-widget .riego-dosis {
+    background: rgba(255,255,255,0.6); border-radius: 8px;
+    padding: 8px 10px; margin-top: 8px; font-size: 11.5px;
+    color: #1F4356; font-weight: 600;
+  }
+
+  .grid-tareas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tarea-item {
+    background: var(--crema); border-radius: 10px; padding: 10px; font-size: 12px;
+    border-left: 3px solid var(--verde-planta); display: flex; align-items: center;
+    gap: 6px; cursor: pointer; color: var(--texto); font-weight: 500;
+    word-break: break-word; min-height: 44px;
+  }
+  .tarea-item.done {
+    opacity: 0.55; text-decoration: line-through;
+    border-left-color: var(--verde-salvia); background: #EDE8DC;
+  }
+  .tarea-item .check { font-size: 15px; flex-shrink: 0; }
+
+  .btn-add-cultivo {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--verde-oliva), var(--verde-planta));
+    color: var(--crema); border: none; padding: 15px; border-radius: 14px;
+    font-size: 14.5px; font-weight: 700; cursor: pointer; margin-top: 12px;
+    box-shadow: 0 4px 12px rgba(85, 107, 47, 0.3); font-family: inherit;
+  }
+  .btn-add-cultivo:active { transform: scale(0.98); }
+  .btn-add-cultivo .icon-plus {
+    font-size: 20px; background: rgba(255,255,255,0.25);
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .filtros-cat { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .filtro-btn {
+    background: #FFFFFF; border: 2px solid var(--tierra-clara); border-radius: 12px;
+    padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--verde-oliva);
+    cursor: pointer; font-family: inherit;
+  }
+  .filtro-btn.activo {
+    background: linear-gradient(135deg, var(--verde-oliva), var(--verde-planta));
+    color: #FFF; border-color: var(--verde-oliva);
+  }
+
+  .cultivo {
+    border-left: 4px solid var(--verde-planta); padding: 12px 14px;
+    background: var(--crema); border-radius: 10px; margin-bottom: 10px;
+  }
+  .cultivo-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13.5px; font-weight: 700; margin-bottom: 6px;
+    color: var(--verde-oliva); gap: 8px;
+  }
+  .btn-del, .btn-edit {
+    background: rgba(184, 92, 92, 0.15); border: none; color: #B85C5C;
+    font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-weight: 700; flex-shrink: 0; font-family: inherit;
+  }
+  .btn-edit { background: rgba(122, 155, 118, 0.2); color: var(--verde-oliva); }
+  .progress {
+    height: 8px; background: #E0D6C0; border-radius: 4px;
+    overflow: hidden; margin-top: 6px;
+  }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--verde-planta), var(--verde-salvia));
+    border-radius: 4px; transition: width 0.5s ease;
+  }
+  .cultivo-info { font-size: 11px; color: var(--texto-suave); margin-top: 6px; line-height: 1.6; }
+  .cat-tag {
+    display: inline-block; background: var(--verde-menta); color: var(--verde-oliva);
+    font-size: 9.5px; padding: 2px 7px; border-radius: 8px; font-weight: 700; margin-right: 4px;
+  }
+  .ubi-tag {
+    display: inline-block; background: var(--tierra-clara); color: var(--cafe-oscuro);
+    font-size: 9.5px; padding: 2px 7px; border-radius: 8px; font-weight: 700;
+  }
+
+  .tabla-fases { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tabla-fases th {
+    text-align: left; padding: 8px 6px; color: var(--verde-oliva);
+    font-weight: 700; border-bottom: 2px solid var(--tierra-clara);
+    font-size: 10px; text-transform: uppercase;
+  }
+  .tabla-fases td { padding: 8px 6px; border-bottom: 1px solid #EFE8D8; font-size: 11.5px; }
+
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: 10px;
+    font-size: 9.5px; font-weight: 700; color: var(--crema); white-space: nowrap;
+  }
+  .badge.menguante { background: var(--morado-terroso); }
+  .badge.nueva { background: var(--negro-tierra); }
+  .badge.creciente { background: var(--verde-planta); }
+  .badge.llena { background: var(--arena); color: var(--cafe-oscuro); }
+  .badge.aplicado { background: var(--verde-planta); }
+  .badge.pendiente { background: var(--tierra-media); }
+
+  .calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 11px; }
+  .dia-semana {
+    text-align: center; font-weight: 700; color: var(--cafe-suave);
+    padding: 5px 0; font-size: 9.5px; text-transform: uppercase;
+  }
+  .dia {
+    aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-weight: 700;
+    color: var(--crema); font-size: 11px; cursor: pointer;
+  }
+  .dia .icono { font-size: 9px; margin-top: 1px; }
+  .dia.menguante { background: var(--morado-terroso); }
+  .dia.nueva { background: var(--negro-tierra); }
+  .dia.creciente { background: var(--verde-planta); }
+  .dia.llena { background: var(--arena); color: var(--cafe-oscuro); }
+  .dia.hoy { outline: 3px solid #F0C674; outline-offset: 1px; }
+
+  .leyenda { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; font-size: 10px; }
+  .leyenda-item {
+    display: flex; align-items: center; gap: 5px; color: var(--texto-suave);
+    background: var(--crema); padding: 4px 8px; border-radius: 10px; font-weight: 500;
+  }
+  .leyenda-color { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  .boton {
+    background: linear-gradient(135deg, var(--verde-oliva), var(--verde-salvia));
+    color: var(--crema); border: none; padding: 11px 18px; border-radius: 10px;
+    font-size: 12.5px; font-weight: 700; cursor: pointer; margin: 5px 5px 5px 0;
+    font-family: inherit;
+  }
+  .boton:active { transform: scale(0.97); }
+  .boton.sec { background: var(--tierra-clara); color: var(--cafe-oscuro); }
+  .boton.wsp { background: linear-gradient(135deg, #25D366, #128C7E); }
+
+  .tip {
+    background: linear-gradient(135deg, #F5EFE3, #EDE3CC);
+    border-left: 4px solid var(--tierra-media); padding: 12px 14px;
+    border-radius: 10px; font-size: 12.5px; line-height: 1.6;
+    color: var(--cafe-oscuro); word-break: break-word;
+  }
+
+  .abono-card {
+    background: linear-gradient(135deg, #FDFBF5, #F0E9D9);
+    border-left: 4px solid var(--verde-planta);
+    border-radius: 12px; padding: 14px; margin-bottom: 12px;
+  }
+  .abono-card .abono-titulo {
+    font-size: 14px; font-weight: 800; color: var(--verde-oliva);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  }
+  .abono-card .abono-uso {
+    font-size: 11px; color: var(--texto-suave); font-style: italic;
+    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--tierra-clara);
+  }
+  .abono-card .abono-detalle { font-size: 12px; line-height: 1.7; color: var(--texto); }
+  .abono-card .abono-detalle b { color: var(--verde-oliva); display: inline-block; margin-top: 6px; }
+  .abono-card .abono-detalle ul { margin: 4px 0 4px 18px; }
+  .abono-card .abono-detalle li { margin-bottom: 3px; }
+
+  .stat {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px solid #EFE8D8; font-size: 13px;
+    align-items: center; gap: 8px;
+  }
+  .stat:last-child { border: none; }
+  .stat-num {
+    font-weight: 800; color: var(--verde-oliva); font-size: 15px;
+    background: var(--crema); padding: 3px 10px; border-radius: 10px; flex-shrink: 0;
+  }
+
+  /* BACKUP */
+  .backup-botones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .backup-botones .boton {
+    margin: 0;
+    padding: 12px 8px;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .backup-info {
+    font-size: 11px;
+    color: var(--texto-suave);
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--crema);
+    border-radius: 10px;
+    line-height: 1.5;
+    border-left: 3px solid var(--tierra-media);
+  }
+  .backup-info b { color: var(--verde-oliva); }
+
+  .modal-import textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 10px 12px;
+    border: 1px solid var(--tierra-clara);
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    background: var(--crema);
+    color: var(--texto);
+    outline: none;
+    resize: vertical;
+    margin-top: 10px;
+  }
+  .modal-import textarea:focus { border-color: var(--verde-planta); }
+  .modal-import .opciones-import {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .modal-import .opciones-import .boton {
+    flex: 1;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #FDFBF5; display: flex; justify-content: space-around;
+    padding: 4px 0 6px;
+    box-shadow: 0 -3px 14px rgba(20, 35, 18, 0.15);
+    z-index: 999; border-top: 1px solid var(--tierra-clara);
+  }
+  .nav-item {
+    flex: 1; text-align: center; font-size: 8px; color: var(--cafe-suave);
+    padding: 4px 2px; cursor: pointer; background: transparent;
+    border: none; font-family: inherit; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 1px; min-width: 0;
+  }
+  .nav-item .icon { font-size: 16px; line-height: 1; }
+  .nav-item.active { color: var(--verde-oliva); }
+  .nav-item.active .icon { transform: scale(1.1); }
+  .nav-item.active::after {
+    content: ''; display: block; width: 14px; height: 2px;
+    background: var(--verde-planta); border-radius: 2px; margin-top: 1px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .toast {
+    position: fixed; bottom: 70px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--verde-bosque); color: var(--crema);
+    padding: 12px 18px; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+    box-shadow: 0 6px 20px rgba(20, 35, 18, 0.35);
+    opacity: 0; transition: all 0.35s ease; z-index: 2000;
+    max-width: 88%; text-align: center; pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(20, 35, 18, 0.6);
+    z-index: 1500; display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #FDFBF5; border-radius: 18px; padding: 22px;
+    width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal h3 { color: var(--verde-oliva); font-size: 17px; margin-bottom: 16px; text-align: center; }
+  .modal label {
+    display: block; font-size: 12px; color: var(--texto-suave);
+    font-weight: 600; margin-bottom: 4px; margin-top: 10px;
+  }
+  .modal input, .modal select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--tierra-clara);
+    border-radius: 10px; font-size: 14px; font-family: inherit;
+    color: var(--texto); background: var(--crema); outline: none;
+  }
+  .modal input:focus, .modal select:focus { border-color: var(--verde-planta); }
+  .modal-botones { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-botones .boton { flex: 1; margin: 0; text-align: center; }
+
+  .info-cosecha {
+    background: linear-gradient(135deg, #E8F4E4, #DCE9D5);
+    border-left: 4px solid var(--verde-planta);
+    padding: 10px 12px; border-radius: 10px; font-size: 12px;
+    margin-top: 10px; line-height: 1.6;
+    color: var(--verde-oliva); font-weight: 600;
+  }
+  .info-cosecha .fecha-cosecha { color: #B85C5C; font-weight: 800; }
+
+  @media (max-width: 420px) {
+    header h1 { font-size: 14px; padding-right: 110px; }
+    header p { font-size: 10px; padding-right: 110px; }
+    .header-btn { width: 30px; height: 30px; font-size: 13px; }
+    .fase-hero .luna-grande { font-size: 70px; }
+    .fase-hero .nombre { font-size: 14px; }
+    .nav-item { font-size: 7.5px; }
+    .nav-item .icon { font-size: 15px; }
+  }
+  @media (max-width: 380px) {
+    .grid-tareas { grid-template-columns: 1fr; }
+    header h1 { font-size: 13px; padding-right: 100px; }
+    .fase-hero { grid-template-columns: 1fr; gap: 12px; }
+    .fase-hero .luna-grande { font-size: 76px; }
+    .ubicacion-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    header, .nav, .boton, .header-actions, .toast,
+    .btn-add-cultivo, .ubicacion-selector, .filtros-cat, .backup-botones { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .tab-content { display: block !important; }
+    .fase-hero { background: white !important; color: black !important; border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌱 Calendario Lunar de Siembras</h1>
+  <p>
+    <span id="ubicacionTexto">Cargando...</span>
+    <span class="location-badge" id="btnCambiarUbicacionHeader">📍 Cambiar</span>
+  </p>
+  <div class="header-actions">
+    <button type="button" class="header-btn" id="btnCompartir" title="Compartir">📤</button>
+    <button type="button" class="header-btn" id="btnPDF" title="Exportar PDF">🖨️</button>
+    <button type="button" class="header-btn" id="btnNotif" title="Notificaciones">🔔</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- INICIO -->
+  <div id="tab-inicio" class="tab-content active">
+
+    <div class="ubicacion-selector" id="selectorUbicacion" style="display:none">
+      <h3>📍 ¿Dónde está tu cultivo?</h3>
+      <p class="subtitulo">Elige la ubicación para ajustar el clima y los consejos</p>
+      <div class="ubicacion-grid" id="ubicacionGrid"></div>
+      <button type="button" class="boton" id="btnConfirmarUbicacion" style="width:100%;margin-top:8px">
+        ✅ Confirmar ubicación
+      </button>
+    </div>
+
+    <div class="fase-hero">
+      <div class="col-izq">
+        <div class="luna-grande" id="faseEmoji">🌘</div>
+        <div class="nombre" id="faseNombre">MENGUANTE</div>
+        <div class="dia" id="faseDia">Cargando...</div>
+        <div class="reco" id="faseReco">🥕 Energía en raíces</div>
+      </div>
+      <div class="col-der">
+        <div class="almanaque-titulo" id="almanaqueTitulo">🌙 Agosto 2026</div>
+        <div class="almanaque-grid" id="almanaqueHero"></div>
+        <div class="almanaque-leyenda">
+          <span><i style="background:#8B6B8F"></i>Raíces</span>
+          <span><i style="background:#1a1a1a"></i>Labrar</span>
+          <span><i style="background:#7BA05B"></i>Hojas</span>
+          <span><i style="background:#E8DCC0"></i>Cosecha</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="clima-widget">
+      <div class="clima-item">
+        <span class="icon">🌡️</span>
+        <div class="valor" id="climaTemp">--°</div>
+        <div class="label">Temp</div>
+      </div>
+      <div class="clima-item">
+        <span class="icon">💧</span>
+        <div class="valor" id="climaHum">--%</div>
+        <div class="label">Humedad</div>
+      </div>
+      <div class="clima-item">
+        <span class="icon">🌧️</span>
+        <div class="valor" id="climaLluvia">--%</div>
+        <div class="label">Lluvia</div>
+      </div>
+      <div class="clima-item" id="btnActualizarClima" style="cursor:pointer">
+        <span class="icon">🔄</span>
+        <div class="valor" style="font-size:11px">Actualizar</div>
+        <div class="label">Clima</div>
+      </div>
+    </div>
+
+    <div class="riego-widget" id="riegoWidget">
+      <div class="riego-titulo">💧 Sugerencia de riego</div>
+      <div class="riego-texto" id="riegoTexto">Cargando...</div>
+      <div class="riego-dosis" id="riegoDosis"></div>
+    </div>
+
+    <div class="card">
+      <h2>📋 Tareas de hoy</h2>
+      <div class="grid-tareas" id="tareasHoy"></div>
+    </div>
+
+    <div class="card">
+      <h2>🌱 Mis cultivos activos</h2>
+      <div id="cultivosInicio"></div>
+      <button type="button" class="btn-add-cultivo" id="btnAddCultivoInicio">
+        <span class="icon-plus">+</span>
+        <span>Agregar nuevo cultivo</span>
+      </button>
+    </div>
+
+    <div class="card" style="margin-bottom: 50px">
+      <h2>💡 Tip del día</h2>
+      <div class="tip" id="tipDia">Cargando...</div>
+    </div>
+  </div>
+
+  <!-- FASES -->
+  <div id="tab-fases" class="tab-content">
+    <div class="card">
+      <h2>🌙 Fases lunares · Agosto 2026</h2>
+      <div class="calendario" id="calendario"></div>
+      <div class="leyenda">
+        <div class="leyenda-item"><div class="leyenda-color" style="background:#8B6B8F"></div> Menguante · Raíces</div>
+        <div class="leyenda-item"><div class="leyenda-color" style="background:#3D3229"></div> Nueva · Labrar</div>
+        <div class="leyenda-item"><div class="leyenda-color" style="background:#7BA05B"></div> Creciente · Hojas</div>
+        <div class="leyenda-item"><div class="leyenda-color" style="background:#E8DCC0"></div> Llena · Cosechar</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📖 Guía rápida por fase</h2>
+      <table class="tabla-fases">
+        <tr><th>Fase</th><th>Qué hacer</th><th>Qué sembrar</th></tr>
+        <tr>
+          <td><span class="badge menguante">MENGUANTE</span></td>
+          <td>Podar, abonar, deshierbar</td>
+          <td>🥕 Raíces: zanahoria, papa, cebolla</td>
+        </tr>
+        <tr>
+          <td><span class="badge nueva">NUEVA</span></td>
+          <td>Labrar, compostar, NO sembrar</td>
+          <td>❌ Ninguno</td>
+        </tr>
+        <tr>
+          <td><span class="badge creciente">CRECIENTE</span></td>
+          <td>Trasplantar, entutorar</td>
+          <td>🌿 Hojas: lechuga · 🍅 Frutos: tomate</td>
+        </tr>
+        <tr>
+          <td><span class="badge llena">LLENA</span></td>
+          <td>Cosechar, recolectar semillas</td>
+          <td>❌ Ninguno</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card" style="margin-bottom: 50px">
+      <h2>📤 Compartir y opciones</h2>
+      <button type="button" class="boton wsp" id="btnWsp2">📲 WhatsApp</button>
+      <button type="button" class="boton sec" id="btnPDF2">🖨️ PDF</button>
+      <button type="button" class="boton sec" id="btnCambiarUbiFases">📍 Cambiar ubicación</button>
+      <button type="button" class="boton sec" id="btnReset">🗑️ Resetear</button>
+    </div>
+  </div>
+
+  <!-- CULTIVOS -->
+  <div id="tab-cultivos" class="tab-content">
+    <div class="card" style="margin-bottom: 50px; padding-bottom: 20px;">
+      <h2>🌱 Mis cultivos</h2>
+      <div class="filtros-cat" id="filtrosCategoria"></div>
+      <div id="cultivosLista"></div>
+      <button type="button" class="btn-add-cultivo" id="btnAddCultivoTab" style="margin-bottom: 4px;">
+        <span class="icon-plus">+</span>
+        <span>Agregar nuevo cultivo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LABORES -->
+  <div id="tab-labores" class="tab-content">
+    <div class="card">
+      <h2>✂️ Podas programadas</h2>
+      <table class="tabla-fases" id="tablaPodas"></table>
+      <button type="button" class="boton sec" id="btnAddPoda" style="margin-top:10px">➕ Agregar poda</button>
+    </div>
+    <div class="card" style="margin-bottom: 50px">
+      <h2>🧪 Abonos programados</h2>
+      <table class="tabla-fases" id="tablaAbonos"></table>
+      <button type="button" class="boton sec" id="btnAddAbono" style="margin-top:10px">➕ Agregar abono</button>
+    </div>
+  </div>
+
+  <!-- ABONOS -->
+  <div id="tab-abonos" class="tab-content">
+    <div class="card">
+      <h2>🧪 Guía de abonos orgánicos</h2>
+      <p style="font-size:12px; color:#4A5A48; margin-bottom:14px; line-height:1.6">
+        Recetas completas para preparar en casa con materiales locales.
+      </p>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🟦 Caldo Bordelés</div>
+        <div class="abono-uso">Fungicida preventivo contra hongos (mildiu, antracnosis, roya)</div>
+        <div class="abono-detalle">
+          <b>Ingredientes (para 20 L):</b>
+          <ul>
+            <li>200 g de sulfato de cobre</li>
+            <li>200 g de cal viva o hidratada</li>
+            <li>20 litros de agua</li>
+            <li>Recipientes plásticos (nunca metálicos)</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Disolver el sulfato de cobre en 2 L de agua tibia.</li>
+            <li>Disolver la cal en 18 L de agua.</li>
+            <li>Mezclar <b>echando el sulfato SOBRE la cal</b>, nunca al contrario.</li>
+            <li>Revolver con paleta de madera.</li>
+            <li>Probar acidez: sumergir un machete. Si se oxida, falta cal.</li>
+          </ul>
+          <b>Aplicación:</b>
+          <ul>
+            <li>Dilución 3:1: cebolla, ajo, tomate, remolacha.</li>
+            <li>Dilución 1:1 o 2:1: fríjol, repollo, vainica.</li>
+            <li>Tomate y papa: cada 7-10 días desde 30 cm de altura.</li>
+          </ul>
+          <b>⚠️ Precauciones:</b>
+          <ul>
+            <li>Usar el mismo día o máximo 3 días después.</li>
+            <li>NO aplicar en plántulas ni en floración.</li>
+            <li>NO mezclar con extracto de ortiga.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🟫 Bocashi</div>
+        <div class="abono-uso">Abono fermentado completo — mejora el suelo y aporta nutrientes</div>
+        <div class="abono-detalle">
+          <b>Ingredientes (para ~50 kg):</b>
+          <ul>
+            <li>25 kg de tierra cernida</li>
+            <li>15 kg de cascarilla de arroz o café</li>
+            <li>40 kg de gallinaza o estiércol</li>
+            <li>5 kg de carbón molido</li>
+            <li>5 kg de cal agrícola o ceniza</li>
+            <li>1 L de melaza</li>
+            <li>500 g de levadura de pan</li>
+            <li>40 L de agua sin cloro</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Mezclar los secos en capas.</li>
+            <li>Disolver melaza y levadura en agua tibia.</li>
+            <li>Humedecer al 60-65% (prueba del puño).</li>
+            <li>Formar montón de máx. 50 cm.</li>
+            <li>Cubrir con plástico negro los primeros 3 días.</li>
+            <li>Voltear 2 veces al día desde el día 4.</li>
+          </ul>
+          <b>Tiempo:</b> 15-25 días. Maduro cuando baja la temperatura y huele a tierra fresca.
+        </div>
+      </div>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🪱 Humus de Lombriz</div>
+        <div class="abono-uso">El mejor abono sólido — rico en nutrientes y microorganismos</div>
+        <div class="abono-detalle">
+          <b>Materiales:</b>
+          <ul>
+            <li>Lombrices rojas californianas</li>
+            <li>Lombricera con drenaje</li>
+            <li>Residuos vegetales (sin cítricos ni cocidos)</li>
+            <li>Cáscaras de huevo</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Colocar tierra y lombrices.</li>
+            <li>Alimentar en pequeñas cantidades.</li>
+            <li>Mantener húmedo sin encharcar.</li>
+            <li>Recoger el lixiviado que drena.</li>
+          </ul>
+          <b>Uso:</b>
+          <ul>
+            <li>Sólido: mezclar con tierra al sembrar.</li>
+            <li>Lixiviado: 50 ml por litro de agua.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🍵 Té de Compost</div>
+        <div class="abono-uso">Abono líquido microbiano — fortalece raíces y hojas</div>
+        <div class="abono-detalle">
+          <b>Ingredientes (para 100 L):</b>
+          <ul>
+            <li>5 L de compost maduro</li>
+            <li>100 L de agua sin cloro</li>
+            <li>2 cucharadas de melaza (opcional)</li>
+            <li>Bomba de aire con difusor (opcional)</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Compost en bolsa de tela, sumergir en agua.</li>
+            <li>Con bomba: oxigenar 24-36 h.</li>
+            <li>Sin bomba: reposar 3-5 días removiendo.</li>
+            <li>Colar y envasar en recipiente oscuro.</li>
+          </ul>
+          <b>Dosis:</b>
+          <ul>
+            <li>Foliar: 1 parte de té por 10 de agua.</li>
+            <li>Suelo: puro o diluido 1:1.</li>
+            <li>Frecuencia: cada 2-4 semanas.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🌿 Extracto de Ortiga</div>
+        <div class="abono-uso">Fertilizante foliar y repelente — rico en nitrógeno</div>
+        <div class="abono-detalle">
+          <b>Ingredientes:</b>
+          <ul>
+            <li>1 kg de ortiga fresca</li>
+            <li>10 L de agua sin cloro</li>
+            <li>Recipiente plástico con tapa</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Picar la ortiga y sumergir.</li>
+            <li>Fermentar 10-15 días, removiendo a diario.</li>
+            <li>Colar y guardar en botellas oscuras.</li>
+            <li>Dura hasta 3 meses en lugar fresco.</li>
+          </ul>
+          <b>Dosis:</b> diluir 1 parte de extracto por 9 de agua.
+          <br><b>⚠️ NO mezclar con caldo bordelés.</b>
+        </div>
+      </div>
+
+      <div class="abono-card">
+        <div class="abono-titulo">🧪 Biol</div>
+        <div class="abono-uso">Biofertilizante foliar — estimula floración y crecimiento</div>
+        <div class="abono-detalle">
+          <b>Ingredientes (para 150 L):</b>
+          <ul>
+            <li>40-50 kg de estiércol o gallinaza</li>
+            <li>2 kg de panela o 2 L de melaza</li>
+            <li>200 g de levadura granulada</li>
+            <li>2 L de leche</li>
+            <li>5 kg de hojas de leguminosas picadas</li>
+            <li>2 kg de ceniza</li>
+            <li>150 L de agua sin cloro</li>
+          </ul>
+          <b>Preparación:</b>
+          <ul>
+            <li>Disolver panela y levadura en agua tibia.</li>
+            <li>Mezclar todo en tambo de 200 L.</li>
+            <li>Tapar herméticamente con manguera para gases.</li>
+            <li>Fermentar 60-90 días.</li>
+            <li>Listo cuando ya no sale gas.</li>
+          </ul>
+          <b>Uso:</b> foliar 1 L por 20 L de agua; al suelo 4 L por 20 L.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="tab-stats" class="tab-content">
+    <div class="card">
+      <h2>📊 Estadísticas 2026</h2>
+      <div class="stat"><span>🌱 Cultivos activos</span><span class="stat-num" id="statCultivos">0</span></div>
+      <div class="stat"><span>✂️ Podas pendientes</span><span class="stat-num" id="statPodas">0</span></div>
+      <div class="stat"><span>🧪 Abonos pendientes</span><span class="stat-num" id="statAbonos">0</span></div>
+      <div class="stat"><span>🧺 Cosechas estimadas</span><span class="stat-num" id="statCosechas">0</span></div>
+    </div>
+    <div class="card">
+      <h2>📊 Cultivos por categoría</h2>
+      <div id="statsCategorias"></div>
+    </div>
+
+    <div class="card">
+      <h2>💾 Backup de datos</h2>
+      <p style="font-size:12px; color:#4A5A48; margin-bottom:10px; line-height:1.6">
+        Guarda una copia de seguridad de tus cultivos, tareas y ubicación. 
+        Puedes restaurarla cuando cambies de teléfono o navegador.
+      </p>
+
+      <div class="backup-botones">
+        <button type="button" class="boton" id="btnExportar">
+          📤 Exportar
+        </button>
+        <button type="button" class="boton sec" id="btnImportar">
+          📥 Importar
+        </button>
+      </div>
+
+      <div class="backup-info">
+        <b>📤 Exportar:</b> Descarga un archivo .json con todos tus datos.<br>
+        <b>📥 Importar:</b> Restaura un backup que hayas exportado antes.<br>
+        <b>⚠️ Importante:</b> Guarda el archivo en un lugar seguro (Google Drive, WhatsApp, correo).
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 50px">
+      <h2>🌟 Tips según tu zona</h2>
+      <div class="tip" id="tipsZona">Cargando...</div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="nav" id="navPrincipal">
+  <button type="button" class="nav-item active" data-tab="inicio">
+    <span class="icon">🏡</span><span>Inicio</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="fases">
+    <span class="icon">🌙</span><span>Fases</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="cultivos">
+    <span class="icon">🌱</span><span>Cultivos</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="labores">
+    <span class="icon">✂️</span><span>Labores</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="abonos">
+    <span class="icon">🧪</span><span>Abonos</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="stats">
+    <span class="icon">📊</span><span>Stats</span>
+  </button>
+</nav>
+
+<!-- MODAL NUEVO CULTIVO -->
+<div class="modal-overlay" id="modalCultivo">
+  <div class="modal">
+    <h3>🌱 Nuevo cultivo</h3>
+    <label>Nombre del cultivo</label>
+    <input type="text" id="inputNombre" placeholder="Ej: Lechuga" autocomplete="off">
+
+    <label>Categoría</label>
+    <select id="inputCategoria">
+      <option value="hortaliza">🥬 Hortaliza</option>
+      <option value="legumbre">🫘 Legumbre</option>
+      <option value="fruta">🍎 Fruta</option>
+      <option value="tuberculo">🥔 Tubérculo</option>
+      <option value="raiz">🥕 Raíz</option>
+      <option value="cereal">🌽 Cereal</option>
+      <option value="aromatica">🌿 Aromática</option>
+      <option value="bulbo">🧅 Bulbo</option>
+      <option value="fruto_hort">🍅 Hortaliza de fruto</option>
+      <option value="otro">🌱 Otro</option>
+    </select>
+
+    <label>Emoji</label>
+    <select id="inputEmoji">
+      <option value="🌱">🌱 Planta</option>
+      <option value="🥬">🥬 Lechuga</option>
+      <option value="🥕">🥕 Zanahoria</option>
+      <option value="🥔">🥔 Papa</option>
+      <option value="🍅">🍅 Tomate</option>
+      <option value="🌿">🌿 Hojas</option>
+      <option value="🧅">🧅 Cebolla</option>
+      <option value="🧄">🧄 Ajo</option>
+      <option value="🌽">🌽 Maíz</option>
+      <option value="🫘">🫘 Frijol</option>
+      <option value="🥦">🥦 Brócoli</option>
+      <option value="🎃">🎃 Calabaza</option>
+      <option value="🍓">🍓 Fresa</option>
+      <option value="🌶️">🌶️ Chile</option>
+      <option value="🍎">🍎 Fruta</option>
+      <option value="🍈">🍈 Papaya</option>
+    </select>
+
+    <label>Ubicación del cultivo</label>
+    <input type="text" id="inputUbicacion" placeholder="Ej: Parcela A" autocomplete="off">
+
+    <label>Fecha de siembra</label>
+    <input type="date" id="inputSiembra">
+
+    <div class="info-cosecha" id="infoCosechaNuevo">
+      🌾 Fecha estimada de cosecha: <span class="fecha-cosecha" id="fechaCosechaNuevo">--</span>
+    </div>
+
+    <div class="modal-botones">
+      <button type="button" class="boton sec" id="btnCancelarModal">Cancelar</button>
+      <button type="button" class="boton" id="btnGuardarModal">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CULTIVO -->
+<div class="modal-overlay" id="modalEditarCultivo">
+  <div class="modal">
+    <h3>✏️ Editar cultivo</h3>
+
+    <label>Nombre</label>
+    <input type="text" id="editNombre" autocomplete="off">
+
+    <label>Categoría</label>
+    <select id="editCategoria">
+      <option value="hortaliza">🥬 Hortaliza</option>
+      <option value="legumbre">🫘 Legumbre</option>
+      <option value="fruta">🍎 Fruta</option>
+      <option value="tuberculo">🥔 Tubérculo</option>
+      <option value="raiz">🥕 Raíz</option>
+      <option value="cereal">🌽 Cereal</option>
+      <option value="aromatica">🌿 Aromática</option>
+      <option value="bulbo">🧅 Bulbo</option>
+      <option value="fruto_hort">🍅 Hortaliza de fruto</option>
+      <option value="otro">🌱 Otro</option>
+    </select>
+
+    <label>Emoji</label>
+    <select id="editEmoji">
+      <option value="🌱">🌱 Planta</option>
+      <option value="🥬">🥬 Lechuga</option>
+      <option value="🥕">🥕 Zanahoria</option>
+      <option value="🥔">🥔 Papa</option>
+      <option value="🍅">🍅 Tomate</option>
+      <option value="🌿">🌿 Hojas</option>
+      <option value="🧅">🧅 Cebolla</option>
+      <option value="🧄">🧄 Ajo</option>
+      <option value="🌽">🌽 Maíz</option>
+      <option value="🫘">🫘 Frijol</option>
+      <option value="🥦">🥦 Brócoli</option>
+      <option value="🎃">🎃 Calabaza</option>
+      <option value="🍓">🍓 Fresa</option>
+      <option value="🌶️">🌶️ Chile</option>
+    </select>
+
+    <label>Ubicación</label>
+    <input type="text" id="editUbicacion" autocomplete="off">
+
+    <label>Fecha de siembra</label>
+    <input type="date" id="editSiembra">
+
+    <div class="info-cosecha" id="infoCosecha">
+      🌾 Fecha estimada de cosecha: <span class="fecha-cosecha" id="fechaCosechaEstimada">--</span>
+    </div>
+
+    <label>Estado del cultivo</label>
+    <select id="editEstado">
+      <option value="Recién sembrado">🌱 Recién sembrado</option>
+      <option value="En crecimiento">🌿 En crecimiento</option>
+      <option value="En floración">🌸 En floración</option>
+      <option value="En fructificación">🍅 En fructificación</option>
+      <option value="Casi listo">🌾 Casi listo para cosechar</option>
+      <option value="Cosechado">✅ Cosechado</option>
+    </select>
+
+    <label>Progreso (<span id="editProgresoValor">5</span>%)</label>
+    <input type="range" id="editProgreso" min="0" max="100" value="5" style="padding:0;background:transparent;border:none;width:100%">
+
+    <div class="modal-botones">
+      <button type="button" class="boton sec" id="btnCancelarEditar">Cancelar</button>
+      <button type="button" class="boton" id="btnGuardarEditar">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR BACKUP -->
+<div class="modal-overlay" id="modalImportar">
+  <div class="modal modal-import">
+    <h3>📥 Importar backup</h3>
+
+    <label>Pega el texto del backup o carga el archivo .json</label>
+
+    <div class="opciones-import">
+      <button type="button" class="boton sec" id="btnCargarArchivo">
+        📁 Cargar archivo
+      </button>
+      <button type="button" class="boton sec" id="btnPegarPortapapeles">
+        📋 Pegar
+      </button>
+    </div>
+
+    <input type="file" id="inputArchivo" accept=".json,.txt" style="display:none">
+
+    <textarea id="textareaImport" placeholder='Pega aquí el contenido del backup (empieza con {"tareas":...)'></textarea>
+
+    <div class="backup-info" style="margin-top:10px">
+      ⚠️ <b>Al importar, se reemplazarán TODOS tus datos actuales.</b> 
+      Asegúrate de haber exportado primero si quieres conservar lo que tienes.
+    </div>
+
+    <div class="modal-botones">
+      <button type="button" class="boton sec" id="btnCancelarImportar">Cancelar</button>
+      <button type="button" class="boton" id="btnConfirmarImportar">Importar y reemplazar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ===== CATEGORÍAS =====
+const CATEGORIAS = {
+  hortaliza:   { nombre: 'Hortaliza',   emoji: '🥬' },
+  legumbre:    { nombre: 'Legumbre',    emoji: '🫘' },
+  fruta:       { nombre: 'Fruta',       emoji: '🍎' },
+  tuberculo:   { nombre: 'Tubérculo',   emoji: '🥔' },
+  raiz:        { nombre: 'Raíz',        emoji: '🥕' },
+  cereal:      { nombre: 'Cereal',      emoji: '🌽' },
+  aromatica:   { nombre: 'Aromática',   emoji: '🌿' },
+  bulbo:       { nombre: 'Bulbo',       emoji: '🧅' },
+  fruto_hort:  { nombre: 'Hort. fruto', emoji: '🍅' },
+  otro:        { nombre: 'Otro',        emoji: '🌱' }
+};
+
+// ===== UBICACIONES =====
+const UBICACIONES = [
+  { id: 'pacho_centro', nombre: 'Pacho Centro', icon: '🏘️', detalle: '2.000 m · Sabana fría', lat: 5.1333, lon: -74.1667 },
+  { id: 'pacho_rural',  nombre: 'Pacho Rural',  icon: '🌾', detalle: 'Finca · 2.100 m',       lat: 5.1300, lon: -74.1700 },
+  { id: 'la_palma',     nombre: 'La Palma',     icon: '⛰️', detalle: '1.900 m · Vereda',      lat: 5.3600, lon: -74.3900 },
+  { id: 'san_cayetano', nombre: 'San Cayetano', icon: '🌱', detalle: '2.200 m · Zona fría',   lat: 5.3300, lon: -74.0300 },
+  { id: 'otra',         nombre: 'Otra ubicación', icon: '✏️', detalle: 'Escribe el nombre',   lat: 5.1333, lon: -74.1667 }
+];
+
+const TIPS_ZONA = {
+  pacho_centro: '🏘️ <b>Pacho Centro:</b> Zona templada ideal para hortalizas de hoja todo el año. Cuidado con heladas en julio-agosto.',
+  pacho_rural:  '🌾 <b>Pacho Rural:</b> Terreno con buen drenaje. Perfecto para papa, maíz y frijol. Abona con compost local.',
+  la_palma:     '⛰️ <b>La Palma:</b> Clima más fresco. Prioriza cultivos resistentes al frío como repollo, zanahoria y cebolla.',
+  san_cayetano: '🌱 <b>San Cayetano:</b> Zona fría con buena humedad. Ideal para lechuga, espinaca y acelga. Protege del viento.',
+  otra:         '🌍 <b>Tu ubicación:</b> Sigue las fases lunares y ajusta según el clima local. Riega temprano y vigila heladas.'
+};
+
+// ===== CICLOS DE CULTIVO =====
+const CICLOS_CULTIVO = {
+  'lechuga': 60, 'espinaca': 45, 'acelga': 55, 'repollo': 90, 'coliflor': 100,
+  'brocoli': 90, 'kale': 60, 'berro': 40,
+  'frijol': 100, 'arveja': 90, 'haba': 120, 'lenteja': 110,
+  'fresa': 120, 'papaya': 270, 'mora': 365, 'tomate de arbol': 240,
+  'papa': 120, 'yuca': 300, 'arracacha': 270, 'camote': 150,
+  'zanahoria': 100, 'remolacha': 90, 'nabo': 60, 'rabano': 30,
+  'maiz': 120, 'trigo': 150, 'cebada': 140,
+  'cilantro': 50, 'perejil': 70, 'albahaca': 60, 'hierbabuena': 90,
+  'cebolla': 130, 'ajo': 180, 'puerro': 120,
+  'tomate': 110, 'pimenton': 120, 'pepino': 60, 'calabaza': 100,
+  'berenjena': 120, 'chile': 120
+};
+
+const RIEGO_POR_CATEGORIA = {
+  hortaliza:   { texto: '💧 Riego regular y frecuente. Las hojas anchas pierden mucha agua.', dosis: 'Aprox. 2 L por planta, 1-2 veces al día en verano. Riega temprano (6-8 am) para evitar hongos.' },
+  legumbre:    { texto: '💧 Riego moderado. Evita encharcamiento que pudre las raíces.',      dosis: 'Aprox. 1 L por planta cada 2-3 días. Reduce el riego durante la floración.' },
+  fruta:       { texto: '💧 Riego profundo y espaciado para que las raíces profundicen.',     dosis: 'Aprox. 5-10 L por planta cada 5-7 días, según el tamaño.' },
+  tuberculo:   { texto: '💧 Riego constante pero sin encharcar. Humedad uniforme evita grietas.', dosis: 'Aprox. 1.5 L por planta cada 2 días. Suspende 15 días antes de cosechar.' },
+  raiz:        { texto: '💧 Riego ligero y frecuente. La raíz necesita humedad constante.',   dosis: 'Aprox. 1 L por planta cada 2 días. Evita sequía que endurece la raíz.' },
+  cereal:      { texto: '💧 Riego abundante en crecimiento, reducido en madurez.',            dosis: 'Aprox. 2 L por planta cada 3 días. Suspende al amarillear.' },
+  aromatica:   { texto: '💧 Riego moderado. Demasiada agua reduce el aroma.',                 dosis: 'Aprox. 0.5 L por planta cada 2-3 días.' },
+  bulbo:       { texto: '💧 Riego escaso. Los bulbos prefieren suelo más seco.',              dosis: 'Aprox. 0.5 L por planta cada 3-4 días. Suspende 20 días antes de cosechar.' },
+  fruto_hort:  { texto: '💧 Riego regular. Aumenta al formar frutos, reduce en floración.',    dosis: 'Aprox. 2 L por planta cada 2 días. Nunca mojes las hojas (hongos).' },
+  otro:        { texto: '💧 Riego moderado según necesidad.',                                 dosis: 'Aprox. 1 L por planta cada 2-3 días.' }
+};
+
+// ===== FASES =====
+const FASES = {
+  menguante: { emoji: '🌘', nombre: 'MENGUANTE', reco: '🥕 Energía en raíces' },
+  nueva:     { emoji: '🌑', nombre: 'LUNA NUEVA', reco: '🔧 Labrar — NO sembrar' },
+  creciente: { emoji: '🌒', nombre: 'CRECIENTE', reco: '🌿 Energía en hojas y frutos' },
+  llena:     { emoji: '🌕', nombre: 'LUNA LLENA', reco: '🧺 Cosechar — NO sembrar' }
+};
+
+const CALENDARIO_AGOSTO = {
+  1:'menguante',2:'menguante',3:'menguante',4:'menguante',5:'menguante',6:'menguante',
+  7:'menguante',8:'menguante',9:'menguante',10:'menguante',11:'menguante',
+  12:'nueva',13:'nueva',14:'nueva',
+  15:'creciente',16:'creciente',17:'creciente',18:'creciente',19:'creciente',
+  20:'creciente',21:'creciente',22:'creciente',23:'creciente',24:'creciente',25:'creciente',
+  26:'llena',27:'llena',28:'llena',29:'llena',30:'llena',31:'llena'
+};
+
+const DATOS_DEFAULT = {
+  tareas: [
+    { texto: 'Cosechar zanahoria', done: true },
+    { texto: 'Deshierbar parcela A', done: true },
+    { texto: 'Regar si no llueve', done: false },
+    { texto: 'Podar chupones tomate', done: false },
+    { texto: 'Aplicar caldo bordelés', done: false },
+    { texto: 'Revisar plagas', done: false }
+  ],
+  cultivos: [
+    { emoji: '🥕', nombre: 'Zanahoria', categoria: 'raiz', ubicacion: 'Parcela A', siembra: '15/07/2026', cosecha: '23/10/2026', estado: 'En crecimiento', progreso: 65 },
+    { emoji: '🥔', nombre: 'Papa', categoria: 'tuberculo', ubicacion: 'Parcela B', siembra: '01/08/2026', cosecha: '29/11/2026', estado: 'En crecimiento', progreso: 30 },
+    { emoji: '🍅', nombre: 'Tomate', categoria: 'fruto_hort', ubicacion: 'Invernadero', siembra: '20/07/2026', cosecha: '7/11/2026', estado: 'En floración', progreso: 70 },
+    { emoji: '🥬', nombre: 'Lechuga', categoria: 'hortaliza', ubicacion: 'Parcela D', siembra: '25/07/2026', cosecha: '23/09/2026', estado: 'En crecimiento', progreso: 60 }
+  ],
+  podas: [
+    { fecha: '05/08/2026', tipo: 'Chupones', cultivo: 'Tomate', estado: 'pendiente' },
+    { fecha: '10/08/2026', tipo: 'Formación', cultivo: 'Frutales', estado: 'pendiente' },
+    { fecha: '15/08/2026', tipo: 'Limpieza', cultivo: 'Árboles frutales', estado: 'pendiente' },
+    { fecha: '20/08/2026', tipo: 'Entutorar', cultivo: 'Tomates, Maíz', estado: 'pendiente' },
+    { fecha: '25/08/2026', tipo: 'Hojas viejas', cultivo: 'Hortalizas', estado: 'pendiente' },
+    { fecha: '30/08/2026', tipo: 'Ramas secas', cultivo: 'Frutales', estado: 'pendiente' }
+  ],
+  abonos: [
+    { fecha: '01/08/2026', tipo: 'Compost maduro', cultivo: 'Zanahoria, Papa', estado: 'aplicado' },
+    { fecha: '05/08/2026', tipo: 'Caldo bordelés', cultivo: 'Tomates, Frutales', estado: 'pendiente' },
+    { fecha: '10/08/2026', tipo: 'Humus de lombriz', cultivo: 'Lechuga, Espinaca', estado: 'pendiente' },
+    { fecha: '15/08/2026', tipo: 'Té de compost', cultivo: 'Todos', estado: 'pendiente' },
+    { fecha: '20/08/2026', tipo: 'Abono foliar', cultivo: 'Tomate, Maíz', estado: 'pendiente' },
+    { fecha: '25/08/2026', tipo: 'Extracto de ortiga', cultivo: 'Hortalizas', estado: 'pendiente' }
+  ]
+};
+
+const STORAGE_KEY = 'agroLuna_v3';
+const UBICACION_KEY = 'agroLuna_ubicacion_v3';
+const FILTRO_KEY = 'agroLuna_filtro_v3';
+
+let ESTADO;
+let UBICACION_SELECCIONADA;
+let UBICACION_TEMP;
+let FILTRO_ACTIVO = 'todas';
+let CULTIVO_EDITANDO = null;
+
+function cargarTodo() {
+  try {
+    const g = localStorage.getItem(STORAGE_KEY);
+    if (g) {
+      const d = JSON.parse(g);
+      if (d.tareas && d.cultivos && d.podas && d.abonos) ESTADO = d;
+    }
+  } catch (e) { console.warn('Error cargando:', e); }
+  if (!ESTADO) ESTADO = JSON.parse(JSON.stringify(DATOS_DEFAULT));
+  migrarCultivos();
+  UBICACION_SELECCIONADA = localStorage.getItem(UBICACION_KEY) || null;
+  UBICACION_TEMP = UBICACION_SELECCIONADA || 'pacho_centro';
+  FILTRO_ACTIVO = localStorage.getItem(FILTRO_KEY) || 'todas';
+}
+
+function migrarCultivos() {
+  let cambiado = false;
+  ESTADO.cultivos.forEach(c => {
+    if (!c.categoria) { c.categoria = inferirCategoria(c.nombre); cambiado = true; }
+    if (c.parcela && !c.ubicacion) { c.ubicacion = c.parcela; delete c.parcela; cambiado = true; }
+    if (!c.ubicacion) { c.ubicacion = 'Sin ubicación'; cambiado = true; }
+  });
+  if (cambiado) guardarEstado();
+}
+
+function inferirCategoria(nombre) {
+  const n = (nombre || '').toLowerCase();
+  if (/lechuga|espinaca|acelga|repollo|col |kale|brócoli|brocoli|coliflor/.test(n)) return 'hortaliza';
+  if (/frijol|fríjol|arveja|haba|lenteja|garbanzo/.test(n)) return 'legumbre';
+  if (/papaya|fresa|mora|mango|naranja|limón|limon|guayaba|lulo|maracuyá|maracuya|fruta/.test(n)) return 'fruta';
+  if (/papa|yuca|arracacha|ñame|name|batata|camote/.test(n)) return 'tuberculo';
+  if (/zanahoria|remolacha|nabo|rábano|rabano/.test(n)) return 'raiz';
+  if (/maíz|maiz|trigo|cebada|avena|arroz/.test(n)) return 'cereal';
+  if (/cilantro|albahaca|perejil|hierbabuena|menta|romero|tomillo|orégano|oregano/.test(n)) return 'aromatica';
+  if (/cebolla|ajo|puerro|cebollín|cebollin/.test(n)) return 'bulbo';
+  if (/tomate|pimentón|pimenton|pepino|calabaza|ahuyama|berenjena|chile|ají|aji/.test(n)) return 'fruto_hort';
+  return 'otro';
+}
+
+function guardarEstado() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ESTADO)); } catch (e) {}
+}
+
+function $(id) { return document.getElementById(id); }
+
+function mostrarToast(msg, ms = 2500) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function obtenerUbicacionActual() {
+  return UBICACIONES.find(u => u.id === UBICACION_SELECCIONADA)
+    || { id: 'pacho_centro', nombre: 'Pacho Centro', icon: '🏘️', lat: 5.1333, lon: -74.1667 };
+}
+
+function detectarFaseHoy() {
+  const hoy = new Date();
+  const dia = hoy.getDate();
+  const mes = hoy.getMonth();
+  const anio = hoy.getFullYear();
+  if (anio === 2026 && mes === 7 && CALENDARIO_AGOSTO[dia]) {
+    return { fase: CALENDARIO_AGOSTO[dia], dia };
+  }
+  return { fase: 'menguante', dia: 5 };
+}
+
+function obtenerCicloCultivo(nombre, categoria) {
+  const n = (nombre || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [key, dias] of Object.entries(CICLOS_CULTIVO)) {
+    if (n.includes(key)) return dias;
+  }
+  const porCategoria = {
+    hortaliza: 60, legumbre: 100, fruta: 180, tuberculo: 120,
+    raiz: 90, cereal: 130, aromatica: 60, bulbo: 150,
+    fruto_hort: 110, otro: 90
+  };
+  return porCategoria[categoria] || 90;
+}
+
+function calcularFechaCosecha(fechaSiembra, cicloDias) {
+  if (!fechaSiembra) return null;
+  const fecha = new Date(fechaSiembra + 'T00:00:00');
+  if (isNaN(fecha.getTime())) return null;
+  fecha.setDate(fecha.getDate() + cicloDias);
+  return fecha;
+}
+
+function formatearFecha(fecha) {
+  if (!fecha) return '--';
+  return fecha.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function convertirFechaAIso(fechaDDMMYYYY) {
+  if (!fechaDDMMYYYY || !fechaDDMMYYYY.includes('/')) return '';
+  const [d, m, a] = fechaDDMMYYYY.split('/');
+  return `${a}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+}
+
+function convertirIsoADdMmAaaa(iso) {
+  if (!iso) return '';
+  const [a, m, d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+}
+
+function inicializar() {
+  const { fase, dia } = detectarFaseHoy();
+  const data = FASES[fase];
+  $('faseEmoji').textContent = data.emoji;
+  $('faseNombre').textContent = data.nombre;
+  $('faseDia').textContent = `Día ${dia} · ${new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  $('faseReco').textContent = data.reco;
+
+  renderTareas();
+  renderCultivos('cultivosInicio');
+  renderCultivos('cultivosLista');
+  renderFiltros();
+  renderCalendario();
+  renderAlmanaqueHero();
+  renderTabla(ESTADO.podas, 'tablaPodas');
+  renderTabla(ESTADO.abonos, 'tablaAbonos');
+  $('tipDia').innerHTML = obtenerTip(fase);
+  actualizarStats();
+  actualizarStatsCategorias();
+  actualizarUbicacionUI();
+  actualizarTipsZona();
+  verificarUbicacionInicial();
+  actualizarSugerenciaRiego();
+  if (UBICACION_SELECCIONADA) actualizarClima();
+}
+
+function obtenerTip(fase) {
+  return ({
+    menguante: '🥕 <b>Menguante:</b> Excelente día para sembrar raíces. Aprovecha para abonar con compost.',
+    nueva: '🔧 <b>Luna nueva:</b> Día de labrar a fondo y añadir compost. NO sembrar.',
+    creciente: '🌿 <b>Creciente:</b> Ideal para sembrar hojas y frutos, trasplantar y aplicar enraizante.',
+    llena: '🧺 <b>Luna llena:</b> ¡Gran día de cosecha! Recolecta tomates, maíz y frijoles.'
+  })[fase] || '';
+}
+
+function renderTareas() {
+  $('tareasHoy').innerHTML = ESTADO.tareas.map((t, i) =>
+    `<div class="tarea-item ${t.done ? 'done' : ''}" data-idx="${i}">
+      <span class="check">${t.done ? '✅' : '⬜'}</span>
+      <span>${t.texto}</span>
+    </div>`
+  ).join('');
+}
+
+function renderCultivos(contenedorId) {
+  const cont = $(contenedorId);
+  if (!cont) return;
+  let lista = ESTADO.cultivos;
+  if (contenedorId === 'cultivosLista' && FILTRO_ACTIVO !== 'todas') {
+    lista = lista.filter(c => c.categoria === FILTRO_ACTIVO);
+  }
+  if (lista.length === 0) {
+    cont.innerHTML = '<p style="font-size:12px;color:#8B7355;text-align:center;padding:12px">No hay cultivos 🌱</p>';
+    return;
+  }
+  cont.innerHTML = lista.map((c) => {
+    const idxReal = ESTADO.cultivos.indexOf(c);
+    const cat = CATEGORIAS[c.categoria] || CATEGORIAS.otro;
+    return `
+      <div class="cultivo">
+        <div class="cultivo-header">
+          <span>${c.emoji} ${c.nombre}</span>
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px">${c.progreso}%</span>
+            <button type="button" class="btn-edit" data-edit="${idxReal}" title="Editar">✏️</button>
+            <button type="button" class="btn-del" data-del="${idxReal}">✕</button>
+          </span>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:${c.progreso}%"></div></div>
+        <div class="cultivo-info">
+          <span class="cat-tag">${cat.emoji} ${cat.nombre}</span>
+          <span class="ubi-tag">📍 ${c.ubicacion}</span><br>
+          🌱 ${c.siembra} · 🧺 ${c.cosecha}<br>
+          🔄 ${c.estado}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderFiltros() {
+  const cont = $('filtrosCategoria');
+  if (!cont) return;
+  const conteos = {};
+  ESTADO.cultivos.forEach(c => {
+    const cat = c.categoria || 'otro';
+    conteos[cat] = (conteos[cat] || 0) + 1;
+  });
+  let html = `<button type="button" class="filtro-btn ${FILTRO_ACTIVO === 'todas' ? 'activo' : ''}" data-cat="todas">Todas (${ESTADO.cultivos.length})</button>`;
+  Object.keys(conteos).forEach(catKey => {
+    const cat = CATEGORIAS[catKey] || CATEGORIAS.otro;
+    html += `<button type="button" class="filtro-btn ${FILTRO_ACTIVO === catKey ? 'activo' : ''}" data-cat="${catKey}">
+      ${cat.emoji} ${cat.nombre} (${conteos[catKey]})
+    </button>`;
+  });
+  cont.innerHTML = html;
+}
+
+function renderAlmanaqueHero() {
+  const cont = $('almanaqueHero');
+  const diasSemana = ['L','M','M','J','V','S','D'];
+  let html = diasSemana.map(d => `<div class="alm-dia-sem">${d}</div>`).join('');
+  for (let i = 0; i < 5; i++) html += '<div></div>';
+  for (let d = 1; d <= 31; d++) {
+    const fase = CALENDARIO_AGOSTO[d];
+    const hoyClase = d === 5 ? 'hoy' : '';
+    html += `<div class="alm-dia ${fase} ${hoyClase}">${d}</div>`;
+  }
+  cont.innerHTML = html;
+}
+
+function renderCalendario() {
+  const cont = $('calendario');
+  const diasSemana = ['L','M','M','J','V','S','D'];
+  let html = diasSemana.map(d => `<div class="dia-semana">${d}</div>`).join('');
+  for (let i = 0; i < 5; i++) html += '<div></div>';
+  for (let d = 1; d <= 31; d++) {
+    const fase = CALENDARIO_AGOSTO[d];
+    const iconos = { menguante:'🥕', nueva:'🔧', creciente:'🌿', llena:'🧺' };
+    const hoyClase = d === 5 ? 'hoy' : '';
+    html += `<div class="dia ${fase} ${hoyClase}" data-dia="${d}">
+      <span>${d}</span>
+      <span class="icono">${iconos[fase]}</span>
+    </div>`;
+  }
+  cont.innerHTML = html;
+}
+
+function renderTabla(datos, id) {
+  const cont = $(id);
+  if (!cont) return;
+  if (!datos || datos.length === 0) {
+    cont.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#8B7355;padding:16px">Sin registros</td></tr>';
+    return;
+  }
+  const tipo = id === 'tablaPodas' ? 'podas' : 'abonos';
+  let html = `<tr><th>Fecha</th><th>Tipo</th><th>Cultivo</th><th>Estado</th></tr>`;
+  datos.forEach((d, i) => {
+    const aplicado = d.estado === 'aplicado';
+    html += `<tr>
+      <td>${d.fecha}</td>
+      <td>${d.tipo}</td>
+      <td>${d.cultivo}</td>
+      <td style="cursor:pointer" data-toggle="${tipo}" data-idx="${i}">
+        <span class="badge ${aplicado ? 'aplicado' : 'pendiente'}">${aplicado ? '✅' : '⬜'} ${d.estado}</span>
+      </td>
+    </tr>`;
+  });
+  cont.innerHTML = html;
+}
+
+function actualizarStats() {
+  $('statCultivos').textContent = ESTADO.cultivos.length;
+  $('statPodas').textContent = ESTADO.podas.filter(p => p.estado === 'pendiente').length;
+  $('statAbonos').textContent = ESTADO.abonos.filter(a => a.estado === 'pendiente').length;
+  $('statCosechas').textContent = ESTADO.cultivos.length;
+}
+
+function actualizarStatsCategorias() {
+  const cont = $('statsCategorias');
+  if (!cont) return;
+  const conteos = {};
+  ESTADO.cultivos.forEach(c => {
+    const k = c.categoria || 'otro';
+    conteos[k] = (conteos[k] || 0) + 1;
+  });
+  const entries = Object.entries(conteos);
+  if (entries.length === 0) {
+    cont.innerHTML = '<p style="font-size:12px;color:#8B7355;text-align:center;padding:8px">Sin cultivos registrados</p>';
+    return;
+  }
+  cont.innerHTML = entries.map(([k, v]) => {
+    const cat = CATEGORIAS[k] || CATEGORIAS.otro;
+    return `<div class="stat"><span>${cat.emoji} ${cat.nombre}</span><span class="stat-num">${v}</span></div>`;
+  }).join('');
+}
+
+function actualizarUbicacionUI() {
+  const ubi = obtenerUbicacionActual();
+  $('ubicacionTexto').textContent = ubi.nombre;
+}
+
+function actualizarTipsZona() {
+  const ubi = obtenerUbicacionActual();
+  const tip = TIPS_ZONA[ubi.id] || TIPS_ZONA.otra;
+  $('tipsZona').innerHTML = tip;
+}
+
+function actualizarSugerenciaRiego() {
+  const cont = $('riegoTexto');
+  const dosis = $('riegoDosis');
+  if (!cont || !dosis) return;
+
+  const activos = ESTADO.cultivos.filter(c => c.estado !== 'Cosechado');
+  if (activos.length === 0) {
+    cont.textContent = 'No hay cultivos activos. Agrega uno para ver sugerencias.';
+    dosis.textContent = '';
+    return;
+  }
+
+  const cultivo = activos[0];
+  const cat = cultivo.categoria || 'otro';
+  const riego = RIEGO_POR_CATEGORIA[cat] || RIEGO_POR_CATEGORIA.otro;
+
+  cont.innerHTML = `<b>${cultivo.emoji} ${cultivo.nombre}</b><br>${riego.texto}`;
+  dosis.textContent = riego.dosis;
+}
+
+function verificarUbicacionInicial() {
+  const sel = $('selectorUbicacion');
+  if (!UBICACION_SELECCIONADA) {
+    sel.style.display = 'block';
+    renderizarOpcionesUbicacion();
+  } else {
+    sel.style.display = 'none';
+  }
+}
+
+function renderizarOpcionesUbicacion() {
+  const grid = $('ubicacionGrid');
+  grid.innerHTML = UBICACIONES.map(u => {
+    const sel = u.id === UBICACION_TEMP ? 'seleccionada' : '';
+    return `<button type="button" class="ubicacion-opcion ${sel}" data-ubi="${u.id}">
+      <span class="check-ubi">✓</span>
+      <span class="icon">${u.icon}</span>
+      <span class="nombre">${u.nombre}</span>
+      <span class="detalle">${u.detalle}</span>
+    </button>`;
+  }).join('');
+}
+
+function abrirSelectorUbicacion() {
+  cambiarTab('inicio');
+  const sel = $('selectorUbicacion');
+  sel.style.display = 'block';
+  UBICACION_TEMP = UBICACION_SELECCIONADA || 'pacho_centro';
+  renderizarOpcionesUbicacion();
+  setTimeout(() => sel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+}
+
+function confirmarUbicacion() {
+  if (!UBICACION_TEMP) { mostrarToast('⚠️ Selecciona una ubicación'); return; }
+  UBICACION_SELECCIONADA = UBICACION_TEMP;
+  localStorage.setItem(UBICACION_KEY, UBICACION_SELECCIONADA);
+  $('selectorUbicacion').style.display = 'none';
+  actualizarUbicacionUI();
+  actualizarTipsZona();
+  actualizarClima();
+  mostrarToast('📍 Ubicación: ' + obtenerUbicacionActual().nombre);
+}
+
+function cambiarTab(nombre) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const tab = $('tab-' + nombre);
+  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === nombre);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function abrirModalCultivo() {
+  $('modalCultivo').classList.add('active');
+  $('inputNombre').value = '';
+  $('inputCategoria').value = 'hortaliza';
+  $('inputEmoji').value = '🌱';
+  $('inputUbicacion').value = 'Parcela A';
+  const hoy = new Date().toISOString().split('T')[0];
+  $('inputSiembra').value = hoy;
+  actualizarFechaCosechaNuevo();
+  setTimeout(() => $('inputNombre').focus(), 250);
+}
+
+function cerrarModalCultivo() { $('modalCultivo').classList.remove('active'); }
+
+function actualizarFechaCosechaNuevo() {
+  const nombre = $('inputNombre').value;
+  const categoria = $('inputCategoria').value;
+  const fechaSiembra = $('inputSiembra').value;
+  const info = $('infoCosechaNuevo');
+
+  if (!fechaSiembra || !nombre) {
+    info.innerHTML = '🌾 Fecha estimada de cosecha: <span class="fecha-cosecha">-- (completa nombre y fecha)</span>';
+    return;
+  }
+
+  const ciclo = obtenerCicloCultivo(nombre, categoria);
+  const fechaCosecha = calcularFechaCosecha(fechaSiembra, ciclo);
+  info.innerHTML = `🌾 Cosecha estimada: <span class="fecha-cosecha">${formatearFecha(fechaCosecha)}</span> — Ciclo: ${ciclo} días`;
+}
+
+function guardarCultivo() {
+  const nombre = $('inputNombre').value.trim();
+  const categoria = $('inputCategoria').value;
+  const emoji = $('inputEmoji').value;
+  const ubicacion = $('inputUbicacion').value.trim() || 'Sin ubicación';
+  const fechaSiembraIso = $('inputSiembra').value;
+
+  if (!nombre) { mostrarToast('⚠️ Escribe el nombre'); return; }
+
+  let siembra = new Date().toLocaleDateString('es-CO');
+  let cosecha = 'Por definir';
+
+  if (fechaSiembraIso) {
+    siembra = convertirIsoADdMmAaaa(fechaSiembraIso);
+    const ciclo = obtenerCicloCultivo(nombre, categoria);
+    const fechaCosecha = calcularFechaCosecha(fechaSiembraIso, ciclo);
+    cosecha = formatearFecha(fechaCosecha);
+  }
+
+  ESTADO.cultivos.push({
+    emoji, nombre, categoria, ubicacion,
+    siembra, cosecha,
+    estado: 'Recién sembrado', progreso: 5
+  });
+  guardarEstado();
+  renderCultivos('cultivosInicio');
+  renderCultivos('cultivosLista');
+  renderFiltros();
+  actualizarStats();
+  actualizarStatsCategorias();
+  actualizarSugerenciaRiego();
+  cerrarModalCultivo();
+  mostrarToast(`✅ ${emoji} ${nombre} agregado`);
+}
+
+function eliminarCultivo(i) {
+  if (!confirm(`¿Eliminar "${ESTADO.cultivos[i].nombre}"?`)) return;
+  ESTADO.cultivos.splice(i, 1);
+  guardarEstado();
+  renderCultivos('cultivosInicio');
+  renderCultivos('cultivosLista');
+  renderFiltros();
+  actualizarStats();
+  actualizarStatsCategorias();
+  actualizarSugerenciaRiego();
+  mostrarToast('🗑️ Eliminado');
+}
+
+function abrirModalEditar(index) {
+  CULTIVO_EDITANDO = index;
+  const c = ESTADO.cultivos[index];
+  if (!c) return;
+
+  $('editNombre').value = c.nombre || '';
+  $('editCategoria').value = c.categoria || 'otro';
+  $('editEmoji').value = c.emoji || '🌱';
+  $('editUbicacion').value = c.ubicacion || '';
+  $('editSiembra').value = convertirFechaAIso(c.siembra);
+  $('editEstado').value = c.estado || 'En crecimiento';
+  $('editProgreso').value = c.progreso || 5;
+  $('editProgresoValor').textContent = c.progreso || 5;
+
+  actualizarFechaCosecha();
+  $('modalEditarCultivo').classList.add('active');
+}
+
+function cerrarModalEditar() {
+  $('modalEditarCultivo').classList.remove('active');
+  CULTIVO_EDITANDO = null;
+}
+
+function actualizarFechaCosecha() {
+  const nombre = $('editNombre').value;
+  const categoria = $('editCategoria').value;
+  const fechaSiembraIso = $('editSiembra').value;
+  const info = $('infoCosecha');
+
+  if (!fechaSiembraIso) {
+    info.innerHTML = '🌾 Fecha estimada de cosecha: <span class="fecha-cosecha">-- (falta fecha)</span>';
+    return;
+  }
+
+  const ciclo = obtenerCicloCultivo(nombre, categoria);
+  const fechaCosecha = calcularFechaCosecha(fechaSiembraIso, ciclo);
+  const hoy = new Date();
+  const diasRestantes = Math.ceil((fechaCosecha - hoy) / (1000 * 60 * 60 * 24));
+
+  if (diasRestantes > 0) {
+    info.innerHTML = `🌾 Cosecha estimada: <span class="fecha-cosecha">${formatearFecha(fechaCosecha)}</span><br>Faltan ${diasRestantes} días (ciclo: ${ciclo} días)`;
+  } else {
+    info.innerHTML = `🌾 Cosecha estimada: <span class="fecha-cosecha">${formatearFecha(fechaCosecha)}</span><br>¡Ya debería estar lista!`;
+  }
+}
+
+function guardarEdicionCultivo() {
+  if (CULTIVO_EDITANDO === null) return;
+  const c = ESTADO.cultivos[CULTIVO_EDITANDO];
+
+  const nombre = $('editNombre').value.trim();
+  if (!nombre) { mostrarToast('⚠️ Escribe el nombre'); return; }
+
+  c.nombre = nombre;
+  c.categoria = $('editCategoria').value;
+  c.emoji = $('editEmoji').value;
+  c.ubicacion = $('editUbicacion').value.trim() || 'Sin ubicación';
+  c.estado = $('editEstado').value;
+  c.progreso = parseInt($('editProgreso').value, 10);
+
+  const fechaSiembraIso = $('editSiembra').value;
+  if (fechaSiembraIso) {
+    c.siembra = convertirIsoADdMmAaaa(fechaSiembraIso);
+    const ciclo = obtenerCicloCultivo(nombre, c.categoria);
+    const fechaCosecha = calcularFechaCosecha(fechaSiembraIso, ciclo);
+    c.cosecha = formatearFecha(fechaCosecha);
+  }
+
+  guardarEstado();
+  renderCultivos('cultivosInicio');
+  renderCultivos('cultivosLista');
+  renderFiltros();
+  actualizarStats();
+  actualizarStatsCategorias();
+  actualizarSugerenciaRiego();
+  cerrarModalEditar();
+  mostrarToast(`✅ ${c.emoji} ${c.nombre} actualizado`);
+}
+
+function agregarLabor(tipo) {
+  const tipoLabel = tipo === 'poda' ? 'Poda' : 'Abono';
+  let desc;
+  if (tipo === 'abono') {
+    const opciones = ['Compost maduro', 'Caldo bordelés', 'Humus de lombriz', 'Té de compost', 'Extracto de ortiga', 'Bocashi', 'Biol', 'Cal agrícola', 'Otro'];
+    const entrada = prompt(`Tipo de abono:\n${opciones.map((o, i) => `${i + 1}. ${o}`).join('\n')}\n\nEscribe el nombre o número:`);
+    if (!entrada) return;
+    desc = /^\d+$/.test(entrada) ? (opciones[parseInt(entrada) - 1] || entrada) : entrada;
+  } else {
+    desc = prompt(`Tipo de ${tipoLabel.toLowerCase()}:`);
+    if (!desc) return;
+  }
+  const cultivo = prompt('Cultivo:', 'General') || 'General';
+  const fecha = prompt('Fecha (dd/mm/aaaa):', new Date().toLocaleDateString('es-CO')) || new Date().toLocaleDateString('es-CO');
+  const lista = tipo === 'poda' ? ESTADO.podas : ESTADO.abonos;
+  lista.push({ fecha, tipo: desc, cultivo, estado: 'pendiente' });
+  guardarEstado();
+  renderTabla(ESTADO.podas, 'tablaPodas');
+  renderTabla(ESTADO.abonos, 'tablaAbonos');
+  actualizarStats();
+  mostrarToast(`✅ ${tipoLabel} agregada`);
+}
+
+async function actualizarClima() {
+  const ubi = obtenerUbicacionActual();
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${ubi.lat}&longitude=${ubi.lon}&current=temperature_2m,relative_humidity_2m,precipitation&timezone=America/Bogota`;
+  try {
+    const resp = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const data = await resp.json();
+    $('climaTemp').textContent = `${Math.round(data.current.temperature_2m)}°`;
+    $('climaHum').textContent = `${data.current.relative_humidity_2m}%`;
+    const lluvia = data.current.precipitation || 0;
+    $('climaLluvia').textContent = lluvia > 0 ? `${lluvia}mm` : '0%';
+  } catch (e) {
+    $('climaTemp').textContent = '16°';
+    $('climaHum').textContent = '75%';
+    $('climaLluvia').textContent = '30%';
+  }
+}
+
+async function activarNotificaciones() {
+  if (!('Notification' in window)) { mostrarToast('❌ Sin soporte'); return; }
+  if (Notification.permission === 'granted') { programarNotificaciones(); mostrarToast('🔔 Ya activas'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') { programarNotificaciones(); mostrarToast('🔔 ¡Activadas!'); }
+  else { mostrarToast('❌ Permiso denegado'); }
+}
+
+function programarNotificaciones() {
+  const ahora = new Date();
+  const proxima = new Date();
+  proxima.setHours(7, 0, 0, 0);
+  if (proxima <= ahora) proxima.setDate(proxima.getDate() + 1);
+  setTimeout(() => {
+    mostrarNotificacionDiaria();
+    setInterval(mostrarNotificacionDiaria, 24 * 60 * 60 * 1000);
+  }, proxima - ahora);
+}
+
+function mostrarNotificacionDiaria() {
+  if (Notification.permission !== 'granted') return;
+  const { fase } = detectarFaseHoy();
+  const data = FASES[fase];
+  const pendientes = ESTADO.tareas.filter(t => !t.done).length;
+  const ubi = obtenerUbicacionActual();
+  new Notification(`🌱 ${ubi.nombre}`, {
+    body: `${data.emoji} ${data.nombre}. ${pendientes} tarea(s) pendiente(s).`,
+    tag: 'agroLuna-daily'
+  });
+}
+
+function compartirWhatsApp() {
+  const ubi = obtenerUbicacionActual();
+  const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+  const { fase } = detectarFaseHoy();
+  const data = FASES[fase];
+  const pendientes = ESTADO.tareas.filter(t => !t.done);
+  let texto = `🌱 *CALENDARIO LUNAR DE SIEMBRAS*\n📅 ${hoy}\n📍 ${ubi.nombre}\n\n`;
+  texto += `${data.emoji} *${data.nombre}*\n${data.reco}\n\n`;
+  texto += `📋 *Tareas pendientes:*\n`;
+  if (pendientes.length === 0) texto += `✅ ¡Todas completadas!\n`;
+  else pendientes.forEach(t => { texto += `⬜ ${t.texto}\n`; });
+  texto += `\n🌱 *Cultivos:*\n`;
+  ESTADO.cultivos.forEach(c => {
+    const cat = CATEGORIAS[c.categoria] || CATEGORIAS.otro;
+    texto += `${c.emoji} ${c.nombre} (${cat.nombre}, ${c.ubicacion}) ${c.progreso}%\n`;
+  });
+  texto += `\n💡 ${obtenerTip(fase).replace(/<[^>]+>/g, '')}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+  mostrarToast('📤 Abriendo WhatsApp...');
+}
+
+function exportarPDF() {
+  mostrarToast('🖨️ Preparando PDF...');
+  setTimeout(() => window.print(), 400);
+}
+
+function resetearDatos() {
+  if (!confirm('⚠️ ¿Borrar todos los datos?')) return;
+  ESTADO = JSON.parse(JSON.stringify(DATOS_DEFAULT));
+  guardarEstado();
+  localStorage.removeItem(UBICACION_KEY);
+  localStorage.removeItem(FILTRO_KEY);
+  UBICACION_SELECCIONADA = null;
+  UBICACION_TEMP = 'pacho_centro';
+  FILTRO_ACTIVO = 'todas';
+  inicializar();
+  mostrarToast('🔄 Datos reseteados');
+}
+
+// ===== BACKUP =====
+function exportarBackup() {
+  try {
+    const backup = {
+      version: 'v3',
+      fecha: new Date().toISOString(),
+      ubicacion: localStorage.getItem(UBICACION_KEY) || null,
+      filtro: localStorage.getItem(FILTRO_KEY) || 'todas',
+      datos: ESTADO
+    };
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const fecha = new Date().toISOString().split('T')[0];
+    const hora = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
+    const nombre = `calendario-lunar-backup-${fecha}-${hora}.json`;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    mostrarToast('📤 Backup descargado: ' + nombre, 3500);
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(json).catch(() => {});
+    }
+  } catch (e) {
+    console.error('Error exportando:', e);
+    mostrarToast('❌ Error al exportar');
+  }
+}
+
+function abrirModalImportar() {
+  $('textareaImport').value = '';
+  $('modalImportar').classList.add('active');
+}
+
+function cerrarModalImportar() {
+  $('modalImportar').classList.remove('active');
+}
+
+function cargarArchivoBackup() {
+  $('inputArchivo').click();
+}
+
+function procesarArchivoBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    $('textareaImport').value = e.target.result;
+    mostrarToast('📁 Archivo cargado. Revisa y toca "Importar"', 3000);
+  };
+  reader.onerror = () => mostrarToast('❌ Error leyendo el archivo');
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+async function pegarDesdePortapapeles() {
+  try {
+    const texto = await navigator.clipboard.readText();
+    if (texto) {
+      $('textareaImport').value = texto;
+      mostrarToast('📋 Contenido pegado');
+    } else {
+      mostrarToast('⚠️ Portapapeles vacío');
+    }
+  } catch (e) {
+    mostrarToast('⚠️ Permiso denegado. Pega manualmente.');
+  }
+}
+
+function confirmarImportarBackup() {
+  const texto = $('textareaImport').value.trim();
+  if (!texto) { mostrarToast('⚠️ Pega o carga un backup primero'); return; }
+
+  let backup;
+  try {
+    backup = JSON.parse(texto);
+  } catch (e) {
+    mostrarToast('❌ El texto no es un backup válido');
+    return;
+  }
+
+  let datos, ubicacion, filtro;
+  if (backup.datos && backup.datos.cultivos) {
+    datos = backup.datos;
+    ubicacion = backup.ubicacion || null;
+    filtro = backup.filtro || 'todas';
+  } else if (backup.cultivos && backup.tareas) {
+    datos = backup;
+    ubicacion = localStorage.getItem(UBICACION_KEY);
+    filtro = 'todas';
+  } else {
+    mostrarToast('❌ El backup no tiene la estructura correcta');
+    return;
+  }
+
+  const totalCultivos = (datos.cultivos || []).length;
+  const totalTareas = (datos.tareas || []).length;
+  if (!confirm(`⚠️ Se reemplazarán TODOS tus datos actuales.\n\nBackup contiene:\n🌱 ${totalCultivos} cultivos\n📋 ${totalTareas} tareas\n\n¿Continuar?`)) {
+    return;
+  }
+
+  try {
+    ESTADO = datos;
+    guardarEstado();
+    if (ubicacion) {
+      UBICACION_SELECCIONADA = ubicacion;
+      localStorage.setItem(UBICACION_KEY, ubicacion);
+    }
+    FILTRO_ACTIVO = filtro;
+    localStorage.setItem(FILTRO_KEY, filtro);
+    cerrarModalImportar();
+    inicializar();
+    mostrarToast(`✅ Backup restaurado: ${totalCultivos} cultivos`, 3500);
+  } catch (e) {
+    console.error('Error importando:', e);
+    mostrarToast('❌ Error al restaurar el backup');
+  }
+}
+
+function inicializarEventos() {
+  const nav = $('navPrincipal');
+  if (nav) {
+    nav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.nav-item');
+      if (!btn) return;
+      e.preventDefault();
+      if (btn.dataset.tab) cambiarTab(btn.dataset.tab);
+    });
+  }
+
+  const btnUbiHeader = $('btnCambiarUbicacionHeader');
+  if (btnUbiHeader) btnUbiHeader.addEventListener('click', abrirSelectorUbicacion);
+  const btnUbiFases = $('btnCambiarUbiFases');
+  if (btnUbiFases) btnUbiFases.addEventListener('click', abrirSelectorUbicacion);
+
+  const gridUbi = $('ubicacionGrid');
+  if (gridUbi) {
+    gridUbi.addEventListener('click', (e) => {
+      const btn = e.target.closest('.ubicacion-opcion');
+      if (!btn) return;
+      e.preventDefault();
+      const id = btn.dataset.ubi;
+      if (id === 'otra') {
+        const nombre = prompt('📍 Nombre de tu ubicación:', 'Mi cultivo');
+        if (nombre) {
+          UBICACIONES.find(u => u.id === 'otra').nombre = nombre;
+          UBICACIONES.find(u => u.id === 'otra').detalle = 'Personalizada';
+        }
+      }
+      UBICACION_TEMP = id;
+      renderizarOpcionesUbicacion();
+    });
+  }
+
+  const btnConfUbi = $('btnConfirmarUbicacion');
+  if (btnConfUbi) btnConfUbi.addEventListener('click', confirmarUbicacion);
+
+  const btnClima = $('btnActualizarClima');
+  if (btnClima) btnClima.addEventListener('click', actualizarClima);
+
+  const contTareas = $('tareasHoy');
+  if (contTareas) {
+    contTareas.addEventListener('click', (e) => {
+      const item = e.target.closest('.tarea-item');
+      if (!item) return;
+      const idx = parseInt(item.dataset.idx, 10);
+      if (isNaN(idx)) return;
+      ESTADO.tareas[idx].done = !ESTADO.tareas[idx].done;
+      guardarEstado();
+      renderTareas();
+    });
+  }
+
+  document.body.addEventListener('click', (e) => {
+    const btnDel = e.target.closest('.btn-del');
+    if (btnDel && btnDel.dataset.del !== undefined) {
+      e.preventDefault();
+      const idx = parseInt(btnDel.dataset.del, 10);
+      if (!isNaN(idx)) eliminarCultivo(idx);
+    }
+  });
+
+  document.body.addEventListener('click', (e) => {
+    const btnEdit = e.target.closest('.btn-edit');
+    if (btnEdit && btnEdit.dataset.edit !== undefined) {
+      e.preventDefault();
+      const idx = parseInt(btnEdit.dataset.edit, 10);
+      if (!isNaN(idx)) abrirModalEditar(idx);
+    }
+  });
+
+  const filtrosCont = $('filtrosCategoria');
+  if (filtrosCont) {
+    filtrosCont.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filtro-btn');
+      if (!btn) return;
+      e.preventDefault();
+      FILTRO_ACTIVO = btn.dataset.cat;
+      localStorage.setItem(FILTRO_KEY, FILTRO_ACTIVO);
+      renderFiltros();
+      renderCultivos('cultivosLista');
+    });
+  }
+
+  ['btnAddCultivoInicio', 'btnAddCultivoTab'].forEach(id => {
+    const b = $(id);
+    if (b) b.addEventListener('click', abrirModalCultivo);
+  });
+
+  const btnCancel = $('btnCancelarModal');
+  if (btnCancel) btnCancel.addEventListener('click', cerrarModalCultivo);
+  const btnGuardar = $('btnGuardarModal');
+  if (btnGuardar) btnGuardar.addEventListener('click', guardarCultivo);
+
+  const modal = $('modalCultivo');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) cerrarModalCultivo();
+    });
+  }
+
+  const inputNombre = $('inputNombre');
+  if (inputNombre) inputNombre.addEventListener('input', actualizarFechaCosechaNuevo);
+  const inputCategoria = $('inputCategoria');
+  if (inputCategoria) inputCategoria.addEventListener('change', actualizarFechaCosechaNuevo);
+  const inputSiembra = $('inputSiembra');
+  if (inputSiembra) inputSiembra.addEventListener('change', actualizarFechaCosechaNuevo);
+
+  const btnCancelarEditar = $('btnCancelarEditar');
+  if (btnCancelarEditar) btnCancelarEditar.addEventListener('click', cerrarModalEditar);
+  const btnGuardarEditar = $('btnGuardarEditar');
+  if (btnGuardarEditar) btnGuardarEditar.addEventListener('click', guardarEdicionCultivo);
+
+  const editProgreso = $('editProgreso');
+  if (editProgreso) {
+    editProgreso.addEventListener('input', (e) => {
+      $('editProgresoValor').textContent = e.target.value;
+    });
+  }
+
+  const editNombre = $('editNombre');
+  if (editNombre) editNombre.addEventListener('input', actualizarFechaCosecha);
+  const editCategoria = $('editCategoria');
+  if (editCategoria) editCategoria.addEventListener('change', actualizarFechaCosecha);
+  const editSiembra = $('editSiembra');
+  if (editSiembra) editSiembra.addEventListener('change', actualizarFechaCosecha);
+
+  const modalEditar = $('modalEditarCultivo');
+  if (modalEditar) {
+    modalEditar.addEventListener('click', (e) => {
+      if (e.target === modalEditar) cerrarModalEditar();
+    });
+  }
+
+  const btnPoda = $('btnAddPoda');
+  if (btnPoda) btnPoda.addEventListener('click', () => agregarLabor('poda'));
+  const btnAbono = $('btnAddAbono');
+  if (btnAbono) btnAbono.addEventListener('click', () => agregarLabor('abono'));
+
+  document.body.addEventListener('click', (e) => {
+    const cell = e.target.closest('[data-toggle]');
+    if (!cell) return;
+    const tipo = cell.dataset.toggle;
+    const idx = parseInt(cell.dataset.idx, 10);
+    if (isNaN(idx)) return;
+    const item = ESTADO[tipo][idx];
+    if (!item) return;
+    item.estado = item.estado === 'aplicado' ? 'pendiente' : 'aplicado';
+    guardarEstado();
+    renderTabla(ESTADO.podas, 'tablaPodas');
+    renderTabla(ESTADO.abonos, 'tablaAbonos');
+    actualizarStats();
+    mostrarToast(item.estado === 'aplicado' ? '✅ Aplicado' : '⬜ Pendiente');
+  });
+
+  const cal = $('calendario');
+  if (cal) {
+    cal.addEventListener('click', (e) => {
+      const diaEl = e.target.closest('.dia');
+      if (!diaEl) return;
+      const d = parseInt(diaEl.dataset.dia, 10);
+      if (isNaN(d)) return;
+      const f = CALENDARIO_AGOSTO[d];
+      const info = FASES[f];
+      const iconos = { menguante:'🥕', nueva:'🔧', creciente:'🌿', llena:'🧺' };
+      mostrarToast(`${iconos[f]} Día ${d} · ${info.nombre} — ${info.reco}`, 4000);
+    });
+  }
+
+  const btnComp = $('btnCompartir');
+  if (btnComp) btnComp.addEventListener('click', compartirWhatsApp);
+  const btnP = $('btnPDF');
+  if (btnP) btnP.addEventListener('click', exportarPDF);
+  const btnN = $('btnNotif');
+  if (btnN) btnN.addEventListener('click', activarNotificaciones);
+
+  const wsp2 = $('btnWsp2');
+  if (wsp2) wsp2.addEventListener('click', compartirWhatsApp);
+  const pdf2 = $('btnPDF2');
+  if (pdf2) pdf2.addEventListener('click', exportarPDF);
+  const reset = $('btnReset');
+  if (reset) reset.addEventListener('click', resetearDatos);
+
+  // ===== BACKUP EVENTOS =====
+  const btnExportar = $('btnExportar');
+  if (btnExportar) btnExportar.addEventListener('click', exportarBackup);
+  const btnImportar = $('btnImportar');
+  if (btnImportar) btnImportar.addEventListener('click', abrirModalImportar);
+  const btnCancelarImportar = $('btnCancelarImportar');
+  if (btnCancelarImportar) btnCancelarImportar.addEventListener('click', cerrarModalImportar);
+  const btnConfirmarImportar = $('btnConfirmarImportar');
+  if (btnConfirmarImportar) btnConfirmarImportar.addEventListener('click', confirmarImportarBackup);
+  const btnCargarArchivo = $('btnCargarArchivo');
+  if (btnCargarArchivo) btnCargarArchivo.addEventListener('click', cargarArchivoBackup);
+  const btnPegarPortapapeles = $('btnPegarPortapapeles');
+  if (btnPegarPortapapeles) btnPegarPortapapeles.addEventListener('click', pegarDesdePortapapeles);
+  const inputArchivo = $('inputArchivo');
+  if (inputArchivo) inputArchivo.addEventListener('change', procesarArchivoBackup);
+
+  const modalImportar = $('modalImportar');
+  if (modalImportar) {
+    modalImportar.addEventListener('click', (e) => {
+      if (e.target === modalImportar) cerrarModalImportar();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      cerrarModalCultivo();
+      cerrarModalEditar();
+      cerrarModalImportar();
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarTodo();
+  inicializar();
+  inicializarEventos();
+  setInterval(() => { if (UBICACION_SELECCIONADA) actualizarClima(); }, 30 * 60 * 1000);
+  console.log('✅ Calendario Lunar cargado ·', ESTADO.cultivos.length, 'cultivos');
+});
+</script>
+
+</body>
+</html>
