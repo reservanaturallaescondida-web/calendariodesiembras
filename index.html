@@ -1,0 +1,2223 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Huerta Lunar"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="theme-color" content="#0a1620"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest">
+<title>Calendario Lunar de Huerta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Concepto: almanaque de campo. Panel nocturno para la luna (único elemento llamativo),
+   resto en tonos de hoja y suelo; datos en tipografía monoespaciada. */
+:root {
+  --bg: #E9EEE8; --card: #F7F9F5; --card2: #EDF1EA; --line: #D3DCD2; --line2: #B7C4B6;
+  --ink: #14231B; --ink2: #44574C; --ink3: #5B6D61;
+  --accent: #2D6A4F; --accent-ink: #FFFFFF; --accent-soft: #DCEBE1;
+  --warn: #8A5200; --warn-soft: #F4E4C3; --bad: #B3261E; --bad-soft: #F6DAD6;
+  --ev-riego: #2a78d6; --ev-abono: #eb6834; --ev-plagas: #1baf7a; --ev-poda: #eda100; --ev-cosecha: #e87ba4; --ev-nota: #6B7D71; --ev-siembra: #2D6A4F;
+  --t-hoja: #2D7D55; --t-fruto: #B8571F; --t-raiz: #7A55A8;
+  --moon-lit: #FFD43B; --moon-dark: #26407a; --moon-edge: rgba(176, 120, 0, .55); --moon-mar: #E59F00;
+  --hero-1: #0A1620; --hero-2: #153047; --hero-ink: #EAF1F5; --hero-ink2: #A9BCCB; --hero-line: rgba(234, 241, 245, .16); --hero-gold: #E9D58A;
+  --shadow: 0 1px 2px rgba(20, 35, 27, .05), 0 8px 24px rgba(20, 35, 27, .06);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B120F; --card: #131C17; --card2: #1A2520; --line: #25322B; --line2: #35463D;
+    --ink: #E5EDE7; --ink2: #AABCAF; --ink3: #8A9D90;
+    --accent: #7FD1A4; --accent-ink: #0B120F; --accent-soft: #1B3126;
+    --warn: #E6B450; --warn-soft: #33290F; --bad: #FF8A80; --bad-soft: #3A1C1A;
+    --ev-riego: #3987e5; --ev-abono: #d95926; --ev-plagas: #199e70; --ev-poda: #c98500; --ev-cosecha: #d55181; --ev-nota: #8A9D90; --ev-siembra: #7FD1A4;
+    --t-hoja: #6FCB9F; --t-fruto: #E8905F; --t-raiz: #B79CE6;
+    --moon-edge: rgba(255, 214, 77, .5); --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B120F; --card: #131C17; --card2: #1A2520; --line: #25322B; --line2: #35463D;
+  --ink: #E5EDE7; --ink2: #AABCAF; --ink3: #8A9D90;
+  --accent: #7FD1A4; --accent-ink: #0B120F; --accent-soft: #1B3126;
+  --warn: #E6B450; --warn-soft: #33290F; --bad: #FF8A80; --bad-soft: #3A1C1A;
+  --ev-riego: #3987e5; --ev-abono: #d95926; --ev-plagas: #199e70; --ev-poda: #c98500; --ev-cosecha: #d55181; --ev-nota: #8A9D90; --ev-siembra: #7FD1A4;
+  --t-hoja: #6FCB9F; --t-fruto: #E8905F; --t-raiz: #B79CE6;
+  --moon-edge: rgba(255, 214, 77, .5); --shadow: none; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 var(--f-body);
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body.lock { overflow: hidden; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, p, ul, ol, dl, dd { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.shell { max-width: 1120px; margin: 0 auto; padding-bottom: 40px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 11px/1.3 var(--f-mono); letter-spacing: .09em; text-transform: uppercase; color: var(--ink3); }
+.muted { color: var(--ink3); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Cabecera y navegación ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 16px 8px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand svg { flex: none; }
+.brand b { font: 700 17px/1.1 var(--f-display); letter-spacing: -.01em; }
+.pill { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); font-size: 12.5px; font-weight: 500; color: var(--ink2); white-space: nowrap; }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink3); }
+.pill[data-s="nube"] i { background: var(--accent); }
+.pill[data-s="conectando"] i { background: var(--warn); }
+.pill[data-s="error"] i { background: var(--bad); }
+
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.tab { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--ink3); font-weight: 600; font-size: 14px; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab svg { width: 18px; height: 18px; }
+@media (max-width: 719px) {
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; margin: 0; gap: 0; justify-content: space-around;
+    background: var(--card); border-top: 1px solid var(--line); border-bottom: 0;
+    padding: 6px max(8px, env(safe-area-inset-left, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-right, 0px));
+  }
+  .tab { flex: 1; flex-direction: column; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; margin: 0; border-radius: 10px; font-size: 11.5px; }
+  .tab[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+  .shell { padding-bottom: 96px; }
+}
+
+/* ---------- Bloques base ---------- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+.card > h2, .h2 { font: 600 18px/1.25 var(--f-display); letter-spacing: -.01em; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.stack { display: grid; gap: 16px; }
+.g2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 819px) { .g2, .g3 { grid-template-columns: minmax(0, 1fr); } }
+.view > * + * { margin-top: 16px; }
+.view { animation: entra .25s ease both; }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .view { animation: none; } * { transition: none !important; } }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-weight: 600; font-size: 14px; text-decoration: none; }
+.btn:hover { background: var(--card2); }
+.btn svg { width: 17px; height: 17px; flex: none; }
+.btn.primary { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 13px; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--ink2); }
+.btn.ghost:hover { background: var(--card2); }
+.btn.danger { color: var(--bad); }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card2); color: var(--ink2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.chip.urgent { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.chip.soon, .chip.listo { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.chip.ok { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.chip.t i, .chip.ev i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.chip.ev { color: var(--ink2); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.fchip { min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink2); font-weight: 600; font-size: 13px; }
+.fchip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+.ico { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--c, var(--ink2)); background: var(--card2); }
+@supports (background: color-mix(in srgb, red 10%, transparent)) {
+  .ico { background: color-mix(in srgb, var(--c, var(--ink3)) 15%, transparent); color: color-mix(in srgb, var(--c, var(--ink2)) 72%, var(--ink)); }
+}
+.ico svg { width: 18px; height: 18px; }
+.empty { text-align: center; padding: 28px 16px; color: var(--ink2); display: grid; gap: 12px; justify-items: center; }
+.empty b { font: 600 17px var(--f-display); color: var(--ink); }
+.empty p { max-width: 38ch; }
+.hint { font-size: 13px; color: var(--ink2); }
+
+/* ---------- Luna ---------- */
+.m-dark { fill: var(--moon-dark); }
+.m-lit { fill: var(--moon-lit); }
+.m-mar { fill: var(--moon-mar); opacity: .45; }
+.m-edge { fill: none; stroke: var(--moon-edge); stroke-width: 1; }
+.hero {
+  --moon-lit: #FFDA4D; --moon-dark: #1b3263; --moon-edge: rgba(255, 214, 77, .55); --moon-mar: #E59F00;
+  position: relative; overflow: hidden; border-radius: 22px; padding: 22px; color: var(--hero-ink);
+  background:
+    radial-gradient(1.2px 1.2px at 8% 18%, rgba(255,255,255,.85), transparent 60%),
+    radial-gradient(1px 1px at 22% 72%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 44% 12%, rgba(255,255,255,.8), transparent 60%),
+    radial-gradient(1px 1px at 63% 84%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1.3px 1.3px at 78% 26%, rgba(255,255,255,.75), transparent 60%),
+    radial-gradient(1px 1px at 92% 64%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 35% 46%, rgba(255,255,255,.5), transparent 60%),
+    linear-gradient(160deg, var(--hero-2), var(--hero-1) 70%);
+}
+.hero-top { display: flex; gap: 26px; align-items: center; }
+.hero-moon { flex: none; filter: drop-shadow(0 0 30px rgba(255, 212, 59, .5)); }
+.hero-moon svg { display: block; max-width: 100%; height: auto; }
+.hero .eyebrow { color: var(--hero-ink2); }
+.hero h1 { font: 700 clamp(30px, 6vw, 44px)/1.02 var(--f-display); letter-spacing: -.02em; margin: 6px 0 4px; text-wrap: balance; }
+.hero-sub { color: var(--hero-gold); font-weight: 600; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 16px; }
+.hero-stats dt { font: 500 10.5px var(--f-mono); letter-spacing: .09em; text-transform: uppercase; color: var(--hero-ink2); }
+.hero-stats dd { font: 500 22px/1.2 var(--f-mono); }
+.hero-stats small { font-size: 12px; color: var(--hero-ink2); }
+.hero-consejo { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--hero-line); color: var(--hero-ink); max-width: 70ch; }
+.hero-next { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.hero-next li { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid var(--hero-line); min-width: 0; }
+.hero-next li:first-child { background: rgba(233, 213, 138, .12); border-color: rgba(233, 213, 138, .4); }
+.hero-next svg { flex: none; }
+.hero-next b { display: block; font-size: 13px; line-height: 1.25; }
+.hero-next span { display: block; font: 400 11.5px/1.35 var(--f-mono); color: var(--hero-ink2); }
+@media (max-width: 719px) {
+  .hero { padding: 18px; }
+  .hero-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .hero-moon svg { width: 128px; height: 128px; }
+  .hero-next { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- Tareas, ventanas, consejos ---------- */
+.rows > li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.rows > li:first-child { border-top: 0; padding-top: 0; }
+.rows .txt { flex: 1 1 150px; min-width: 0; }
+.rows .txt b { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.rows .txt span { font-size: 13px; color: var(--ink3); }
+.rows .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.win { padding: 14px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.win b { font: 600 15px var(--f-display); }
+.acts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 819px) { .acts { grid-template-columns: minmax(0, 1fr); } }
+.act { display: flex; gap: 12px; align-items: flex-start; }
+.act b { display: block; font-weight: 600; }
+.act p { font-size: 13.5px; color: var(--ink2); margin-top: 2px; }
+.act .chip { margin-top: 8px; }
+.tips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+@media (max-width: 819px) { .tips { grid-template-columns: minmax(0, 1fr); } }
+.tip { padding: 12px 0; border-top: 1px solid var(--line); }
+.tip .eyebrow { margin-bottom: 3px; }
+.tip b { font-weight: 600; }
+.tip p { font-size: 13.5px; color: var(--ink2); margin-top: 2px; }
+
+/* ---------- Calendario ---------- */
+.cal-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 819px) { .cal-layout { grid-template-columns: minmax(0, 1fr); } }
+.cal-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.cal-nav select { min-height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card2); }
+.cal-nav .sp { flex: 1; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-wd { text-align: center; font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); padding: 2px 0 6px; }
+.day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 2px; min-height: 62px; padding: 5px 2px 6px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--ink); }
+.day:hover { background: var(--card2); }
+.day.fuera { visibility: hidden; }
+.day .n { font: 500 12.5px var(--f-mono); }
+.day.hoy { border-color: var(--accent); }
+.day.hoy .n { color: var(--accent); font-weight: 600; }
+.day[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.day .q { position: absolute; top: 3px; right: 4px; font: 600 8.5px var(--f-mono); letter-spacing: .02em; color: var(--ink3); }
+.day .dots { display: flex; gap: 3px; height: 6px; align-items: center; }
+.day .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.day svg { display: block; }
+@media (max-width: 480px) { .day { min-height: 56px; } .day svg { width: 22px; height: 22px; } }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 14px; font-size: 12px; color: var(--ink3); }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.leyenda i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.leyenda b { font: 600 10px var(--f-mono); color: var(--ink2); }
+.det-h { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+.det-h h2 { font: 700 21px/1.15 var(--f-display); letter-spacing: -.01em; text-transform: capitalize; }
+.det-h p { color: var(--ink2); font-size: 14px; }
+.det-h svg { flex: none; }
+.sub-h { margin: 18px 0 8px; }
+.tipo-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.tipo-row:first-of-type { border-top: 0; }
+
+/* ---------- Cultivos ---------- */
+.resumen { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0; overflow: hidden; }
+.resumen > div { padding: 14px 16px; border-left: 1px solid var(--line); }
+.resumen > div:first-child { border-left: 0; }
+.resumen b { display: block; font: 700 26px/1.1 var(--f-display); }
+.resumen span { font-size: 12.5px; color: var(--ink3); }
+@media (max-width: 599px) {
+  .resumen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resumen > div:nth-child(3) { border-left: 0; }
+  .resumen > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+.barra { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.crops { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 16px; align-items: start; }
+.crop { display: grid; gap: 14px; }
+.crop-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.crop-h h3 { font: 700 18px/1.2 var(--f-display); letter-spacing: -.01em; overflow-wrap: anywhere; }
+.crop-h .meta { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 13px; color: var(--ink3); }
+.prog-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; color: var(--ink2); }
+.prog-top b { font: 600 20px var(--f-mono); color: var(--ink); }
+.prog { height: 8px; border-radius: 99px; background: var(--card2); border: 1px solid var(--line); margin: 6px 0; overflow: hidden; }
+.prog i { display: block; height: 100%; border-radius: 99px; background: var(--c); }
+.prog-f { display: flex; justify-content: space-between; font: 400 11.5px var(--f-mono); color: var(--ink3); }
+.luna-l { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); }
+.crop-f { display: flex; gap: 8px; flex-wrap: wrap; }
+.det { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
+.mini li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line); }
+.mini li:first-child { border-top: 0; }
+.mini time { font: 400 12px var(--f-mono); color: var(--ink3); flex: none; width: 52px; }
+.mini .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.back-aviso { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-radius: 12px; background: var(--warn-soft); color: var(--warn); font-size: 13.5px; font-weight: 500; }
+
+/* ---------- Registro y gráficos ---------- */
+.bars { display: grid; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: minmax(84px, 30%) minmax(0, 1fr) auto; gap: 12px; align-items: center; font-size: 13.5px; }
+.bar-l { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; color: var(--ink2); }
+.bar-l i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.bar-t { display: block; border-left: 1px solid var(--line2); padding: 3px 0; }
+.bar { display: block; height: 16px; min-width: 2px; border-radius: 0 4px 4px 0; background: var(--c); }
+.bar.cero { min-width: 0; width: 0 !important; }
+.bar-v { font: 500 13px var(--f-mono); min-width: 54px; text-align: right; color: var(--ink); }
+.nota-g { margin-top: 12px; font-size: 12.5px; color: var(--ink3); }
+.data-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.h-filtros { display: flex; gap: 8px; flex-wrap: wrap; }
+.h-filtros select { min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card2); max-width: 100%; }
+.h-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); }
+.h-row time { flex: none; width: 56px; font: 400 12.5px/1.6 var(--f-mono); color: var(--ink3); }
+.h-body { flex: 1; min-width: 0; display: grid; gap: 4px; justify-items: start; }
+.h-body b { font-weight: 600; overflow-wrap: anywhere; }
+.h-det { font-size: 13px; color: var(--ink2); overflow-wrap: anywhere; }
+details.acerca summary { cursor: pointer; font: 600 15px var(--f-display); }
+details.acerca p { margin-top: 10px; font-size: 13.5px; color: var(--ink2); max-width: 74ch; }
+
+/* ---------- Hoja inferior, formularios, aviso ---------- */
+.overlay { position: fixed; inset: 0; z-index: 50; background: rgba(4, 9, 7, .6); display: flex; align-items: flex-end; justify-content: center; padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.sheet { width: 100%; max-width: 540px; max-height: 94vh; overflow-y: auto; background: var(--card); color: var(--ink); border-radius: 20px 20px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border: 1px solid var(--line); }
+@media (min-width: 720px) { .overlay { align-items: center; } .sheet { border-radius: 20px; padding-bottom: 20px; } }
+.sheet h2 { font: 700 21px/1.2 var(--f-display); letter-spacing: -.01em; }
+.sheet .sub { color: var(--ink2); font-size: 14px; margin: 4px 0 14px; }
+.field { display: grid; gap: 6px; margin-bottom: 12px; min-width: 0; }
+.field label, .lbl { font-size: 12.5px; font-weight: 600; color: var(--ink2); }
+input, select, textarea { width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card2); color: var(--ink); font-size: 16px; }
+textarea { resize: vertical; min-height: 64px; }
+input[type="checkbox"], input[type="radio"] { width: auto; min-height: 0; }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 420px) { .row2.keep { grid-template-columns: minmax(0, 1fr); } .row3 { grid-template-columns: minmax(0, 1fr); } }
+.chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 4px 0 12px; }
+.chk input { margin-top: 4px; accent-color: var(--accent); }
+details.adv { margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+details.adv summary { cursor: pointer; font-weight: 600; font-size: 14px; min-height: 28px; display: flex; align-items: center; }
+details.adv[open] summary { margin-bottom: 12px; }
+.sheet-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card2); font-size: 12.5px; font-weight: 600; text-align: center; }
+.opt span svg { width: 20px; height: 20px; color: var(--c); }
+.opt input:checked + span { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 60; display: flex; align-items: center; gap: 12px; max-width: min(92vw, 460px); padding: 10px 12px 10px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 14px; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); }
+.toast .btn { background: transparent; color: inherit; border-color: color-mix(in srgb, var(--bg) 45%, transparent); }
+@media (max-width: 719px) { .toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ===== Color, cultivos ilustrados y guías ===== */
+:root { --f-antes: #d98e04; --f-durante: #2f9e63; --f-despues: #2a78d6; }
+.crop { --cc: var(--accent); border-top: 4px solid var(--cc); overflow: hidden; }
+.crop-ban { display: flex; align-items: flex-end; gap: 12px; margin: -18px -18px 0; padding: 14px 16px 0 6px; background: linear-gradient(135deg, color-mix(in srgb, var(--cc) 36%, var(--card)), color-mix(in srgb, var(--cc) 8%, var(--card))); }
+.crop-ban .ilus { flex: none; display: block; max-width: 38%; height: auto; }
+.ban-t { flex: 1; min-width: 0; padding-bottom: 12px; display: grid; gap: 6px; justify-items: start; }
+.ban-t h3 { font: 700 20px/1.15 var(--f-display); letter-spacing: -.01em; overflow-wrap: anywhere; }
+.ban-t .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: 13px; color: var(--ink2); }
+.crop .prog i { background: var(--cc); }
+.crop .prog { background: color-mix(in srgb, var(--cc) 14%, var(--card2)); }
+.btn.guia-b { background: color-mix(in srgb, var(--cc, var(--accent)) 16%, var(--card)); border-color: color-mix(in srgb, var(--cc, var(--accent)) 45%, var(--line2)); color: var(--ink); }
+.thumb { flex: none; width: 52px; height: 42px; border-radius: 12px; overflow: hidden; display: grid; place-items: end center; background: linear-gradient(160deg, color-mix(in srgb, var(--cc) 38%, var(--card)), color-mix(in srgb, var(--cc) 10%, var(--card))); }
+.thumb .ilus { display: block; width: 100%; height: auto; }
+.vd { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.resumen > div:nth-child(1) { box-shadow: inset 0 3px 0 var(--accent); }
+.resumen > div:nth-child(2) { box-shadow: inset 0 3px 0 var(--ev-riego); }
+.resumen > div:nth-child(3) { box-shadow: inset 0 3px 0 var(--ev-abono); }
+.resumen > div:nth-child(4) { box-shadow: inset 0 3px 0 var(--ev-cosecha); }
+.tab[data-v="hoy"] svg { color: #7a68d8; } .tab[data-v="calendario"] svg { color: var(--ev-riego); }
+.tab[data-v="huerta"] svg { color: var(--ev-plagas); } .tab[data-v="registro"] svg { color: var(--ev-abono); }
+.tab[aria-selected="true"] svg { color: inherit; }
+.win:nth-child(1) { border-left: 4px solid var(--t-hoja); } .win:nth-child(2) { border-left: 4px solid var(--t-fruto); } .win:nth-child(3) { border-left: 4px solid var(--t-raiz); }
+.guia-h { display: flex; align-items: flex-end; gap: 12px; margin: -20px -20px 14px; padding: 16px 20px 0 10px; border-radius: 20px 20px 0 0; background: linear-gradient(135deg, color-mix(in srgb, var(--cc) 38%, var(--card)), color-mix(in srgb, var(--cc) 8%, var(--card))); }
+.guia-h > div { padding-bottom: 14px; min-width: 0; }
+.gtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+.gtab { min-height: 44px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card2); color: var(--ink2); font-weight: 600; font-size: 14px; border-bottom: 3px solid transparent; }
+.gtab:nth-child(1) { --g: var(--f-antes); } .gtab:nth-child(2) { --g: var(--f-durante); } .gtab:nth-child(3) { --g: var(--f-despues); }
+.gtab[aria-selected="true"] { background: color-mix(in srgb, var(--g) 20%, var(--card)); color: var(--ink); border-color: var(--g); border-bottom-color: var(--g); }
+.g-t { font: 700 17px var(--f-display); margin-bottom: 8px; }
+.gl { list-style: none; display: grid; gap: 10px; }
+.gl li { position: relative; padding-left: 20px; line-height: 1.45; overflow-wrap: anywhere; }
+.gl li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 9px; height: 9px; border-radius: 3px; background: var(--cc); transform: rotate(45deg); }
+.g-tl { list-style: none; display: grid; gap: 12px; border-left: 2px solid var(--line2); margin-left: 6px; padding-left: 16px; }
+.g-tl li { position: relative; padding: 8px 10px; border-radius: 12px; }
+.g-tl li::before { content: ""; position: absolute; left: -24px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid var(--f-despues); }
+.g-tl li.ahora { background: color-mix(in srgb, var(--f-despues) 14%, var(--card)); border: 1px solid color-mix(in srgb, var(--f-despues) 50%, var(--line)); }
+.g-tl li.ahora::before { background: var(--f-despues); }
+.g-d { font: 500 12.5px var(--f-mono); color: var(--ink3); letter-spacing: .02em; }
+.g-tl p { margin-top: 2px; line-height: 1.45; overflow-wrap: anywhere; }
+.g-luna { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, #7a68d8 14%, var(--card)); font-size: 14px; }
+.g-luna svg { flex: none; margin-top: 2px; }
+.g-dato { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.g-dato > div { padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--f-durante) 13%, var(--card)); }
+.g-dato span { display: block; font-size: 12px; color: var(--ink3); } .g-dato b { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.fc-guia { --cc: var(--accent); margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--cc) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--cc) 35%, var(--line)); display: grid; gap: 8px; }
+.fc-guia .fg-h { display: flex; align-items: center; gap: 10px; }
+.fc-guia .ilus { flex: none; border-radius: 10px; background: color-mix(in srgb, var(--cc) 22%, var(--card)); }
+.fc-guia .gl li { font-size: 13.5px; }
+
+/* ===== Fases, calendario, abonos y registro visuales ===== */
+:root { --fv-hoja: #3fa34d; --fv-fruto: #e5484d; --fv-raiz: #f08a24; }
+.tab { padding: 0 14px; }
+@media (max-width: 719px) { .tab { font-size: 10.5px; } .tab span { white-space: nowrap; } }
+.fv-row { display: flex; gap: 2px; justify-content: center; }
+.fv { width: 7px; height: 4px; border-radius: 2px; background: var(--line2); opacity: .55; }
+.fv-hoja.on, .sq.fv-hoja { background: var(--fv-hoja); opacity: 1; } .fv-fruto.on, .sq.fv-fruto { background: var(--fv-fruto); opacity: 1; } .fv-raiz.on, .sq.fv-raiz { background: var(--fv-raiz); opacity: 1; }
+.leyenda .sq { width: 14px; height: 6px; border-radius: 3px; opacity: 1; }
+.night { --moon-lit: #FFDA4D; --moon-dark: #1b3263; --moon-edge: rgba(255,214,77,.55); --moon-mar: #E59F00; color: var(--hero-ink); border-radius: 16px; padding: 18px;
+  background: radial-gradient(1.2px 1.2px at 10% 22%, rgba(255,255,255,.85), transparent 60%), radial-gradient(1px 1px at 38% 80%, rgba(255,255,255,.6), transparent 60%), radial-gradient(1.4px 1.4px at 62% 14%, rgba(255,255,255,.8), transparent 60%), radial-gradient(1px 1px at 88% 58%, rgba(255,255,255,.6), transparent 60%), linear-gradient(160deg, var(--hero-2), var(--hero-1) 70%); }
+.night svg { flex: none; filter: drop-shadow(0 0 20px rgba(255,212,59,.45)); }
+.night .eyebrow { color: var(--hero-ink2); }
+.fase-ban, .dia-ban { display: flex; align-items: center; gap: 18px; }
+.fase-ban h2, .dia-ban h2 { font: 700 24px/1.1 var(--f-display); letter-spacing: -.01em; margin: 4px 0; text-transform: capitalize; }
+.fase-d { color: var(--hero-gold); font-weight: 600; } .fase-p { margin-top: 6px; font-size: 13px; color: var(--hero-ink2); }
+.ciclo { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 719px) { .ciclo { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.fase { display: grid; justify-items: center; gap: 6px; padding: 10px 4px 8px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, #2b4a6b 14%, var(--card)), var(--card)); color: var(--ink); text-align: center; }
+.fase b { font: 600 11.5px/1.2 var(--f-body); text-wrap: balance; }
+.fase-m { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle, #1c2c3e, #0d1722); }
+.fase[aria-pressed="true"] { border-color: var(--hero-gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-gold) 55%, transparent); background: color-mix(in srgb, var(--hero-gold) 16%, var(--card)); }
+.fase { --moon-lit: #FFDA4D; --moon-dark: #1b3263; --moon-edge: rgba(255,214,77,.55); --moon-mar: #E59F00; }
+.fase b, .fase .fv-row { --moon-lit: initial; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tile { display: grid; justify-items: center; gap: 6px; padding: 10px 6px 12px; text-align: center; border-radius: 14px; border: 1px solid var(--line); background: var(--card2); }
+.tile.on { border-color: var(--cc); background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 24%, var(--card)), color-mix(in srgb, var(--cc) 6%, var(--card))); }
+.tile:not(.on) .tile-i { filter: grayscale(.85); opacity: .55; }
+.tile b { font: 600 14px var(--f-display); } .tile .chip { white-space: normal; text-align: center; min-height: 24px; padding: 2px 8px; font-size: 11.5px; }
+.tile-i svg { display: block; max-width: 100%; height: auto; }
+.day { padding-top: 4px; gap: 1px; }
+.day.q0 { background: color-mix(in srgb, #2b4a6b 18%, var(--card)); } .day.q2 { background: color-mix(in srgb, var(--hero-gold) 22%, var(--card)); }
+.day.q1, .day.q3 { background: color-mix(in srgb, #7a68d8 12%, var(--card)); }
+.day[aria-pressed="true"] { background: var(--accent-soft); }
+.day .fv { width: 6px; }
+.mini-c li { gap: 10px; padding: 8px 0; }
+.thumb.s { width: 36px; height: 30px; border-radius: 9px; }
+.sub-h.eyebrow { margin: 18px 0 8px; }
+/* Abonos */
+.abo-hero { display: flex; align-items: center; gap: 18px; padding: 20px; border-radius: 22px; margin-bottom: 16px; color: #2b1c10;
+  background: linear-gradient(135deg, #f3d9a0, #e8b46a 55%, #c98b4a); }
+.abo-hero h1 { font: 700 clamp(24px, 5vw, 34px)/1.05 var(--f-display); letter-spacing: -.02em; margin: 4px 0; text-wrap: balance; }
+.abo-hero .eyebrow { color: #5b3a1c; } .abo-hero p { max-width: 52ch; }
+.abo-i { flex: none; } .abo-i svg { display: block; max-width: 100%; height: auto; }
+@media (max-width: 560px) { .abo-hero { flex-direction: column; align-items: flex-start; } }
+.plan { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.plan-c { --cc: var(--accent); display: grid; gap: 8px; align-content: start; padding: 12px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--cc) 40%, var(--line)); background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 14%, var(--card)), var(--card) 60%); }
+.plan-h { display: flex; gap: 10px; align-items: center; } .plan-h b { display: block; font: 700 16px var(--f-display); } .plan-h span:not(.thumb) { font-size: 12.5px; color: var(--ink3); }
+.plan-i { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.plan-m { flex: none; width: 48px; border-radius: 10px; overflow: hidden; background: color-mix(in srgb, var(--c) 22%, var(--card2)); } .plan-m svg { display: block; width: 100%; height: auto; }
+.plan-t { flex: 1; min-width: 0; display: grid; gap: 2px; } .plan-t b { font-size: 14px; } .plan-t span { font-size: 12.5px; color: var(--ink2); line-height: 1.35; }
+.abonos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; margin: 14px 0 16px; align-items: stretch; }
+.abo { --c: var(--accent); display: grid; grid-template-rows: auto 1fr; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); border-top: 4px solid var(--c); }
+.abo-ban { position: relative; display: grid; place-items: end center; padding: 12px 12px 0; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 36%, var(--card)), color-mix(in srgb, var(--c) 8%, var(--card))); }
+.abo-ban svg { display: block; max-width: 100%; height: auto; }
+.chip.tp { position: absolute; top: 10px; left: 10px; background: var(--card); }
+.abo-b { display: grid; gap: 8px; align-content: start; padding: 14px; } .abo-b h3 { font: 700 17px/1.2 var(--f-display); } .abo-b p { font-size: 13.5px; color: var(--ink2); line-height: 1.45; }
+.abo-b .btn { justify-self: start; } .abo-t { font-size: 12.5px !important; color: var(--ink3) !important; }
+.chips-w { display: flex; flex-wrap: wrap; gap: 6px; }
+.abo-sh { --cc: var(--c); } .abo-sh-h { display: flex; align-items: flex-end; gap: 12px; margin: -20px -20px 0; padding: 16px 20px 0 12px; border-radius: 20px 20px 0 0; background: linear-gradient(135deg, color-mix(in srgb, var(--c) 40%, var(--card)), color-mix(in srgb, var(--c) 8%, var(--card))); }
+.abo-sh-h > div { padding-bottom: 14px; display: grid; gap: 6px; justify-items: start; min-width: 0; } .abo-sh-h .chip.tp { position: static; }
+.pasos { list-style: none; counter-reset: p; display: grid; gap: 10px; } .pasos li { counter-increment: p; position: relative; padding: 2px 0 2px 38px; line-height: 1.45; overflow-wrap: anywhere; }
+.pasos li::before { content: counter(p); position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 13px var(--f-mono); color: #fff; background: var(--c); }
+.gl.gl-w li::before { background: var(--warn); border-radius: 50%; transform: none; }
+.g-luna { background: color-mix(in srgb, var(--gl, #7a68d8) 14%, var(--card)); }
+/* Registro */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+@media (max-width: 719px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { display: grid; gap: 4px; align-content: start; padding: 14px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 20%, var(--card)), var(--card) 70%); }
+.stat b { font: 700 28px/1.1 var(--f-display); } .stat b small { font: 500 13px var(--f-mono); color: var(--ink3); } .stat > span:last-child { font-size: 12.5px; color: var(--ink2); }
+.stat .ico { background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 70%, var(--ink)); margin-bottom: 4px; }
+.heat { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 4px; margin-bottom: 6px; }
+.hc { display: block; aspect-ratio: 1; border-radius: 4px; background: var(--card2); border: 1px solid var(--line); }
+.hc.l1 { background: color-mix(in srgb, var(--accent) 30%, var(--card2)); border-color: transparent; } .hc.l2 { background: color-mix(in srgb, var(--accent) 55%, var(--card2)); border-color: transparent; }
+.hc.l3 { background: color-mix(in srgb, var(--accent) 80%, var(--card2)); border-color: transparent; } .hc.l4 { background: var(--accent); border-color: transparent; }
+.heat-l { display: flex; justify-content: space-between; align-items: center; gap: 8px; font: 400 11px var(--f-mono); color: var(--ink3); margin-bottom: 16px; flex-wrap: wrap; }
+.heat-k { display: inline-flex; align-items: center; gap: 3px; } .heat-k .hc { width: 11px; height: 11px; aspect-ratio: auto; }
+.bar-l .thumb { flex: none; }
+.respaldo { border-left: 4px solid var(--accent); margin: 16px 0; }
+.tl { list-style: none; display: grid; gap: 0; position: relative; }
+.tl-row { display: flex; gap: 12px; align-items: flex-start; padding: 0 0 16px; position: relative; }
+.tl-row::before { content: ""; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--line); }
+.tl-row:last-child::before { display: none; }
+.tl-dot { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--c); z-index: 1; }
+.tl-b { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.tl-t { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; } .tl-t time { font: 400 12.5px var(--f-mono); color: var(--ink3); }
+.tl-c { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink2); }
+
+/* Luna dorada */
+.day svg, .brand svg, .hero-next svg { filter: drop-shadow(0 0 3px rgba(255, 200, 30, .55)); }
+.fase-m { background: radial-gradient(circle, #213b72, #0d1a38); box-shadow: 0 0 14px rgba(255, 212, 59, .28); }
+.fase[aria-pressed="true"] .fase-m { box-shadow: 0 0 18px rgba(255, 212, 59, .7); }
+.hero-sub, .fase-d { color: #FFD43B; }
+.day.q2 { background: color-mix(in srgb, #FFD43B 30%, var(--card)); }
+.day.q0 { background: color-mix(in srgb, #26407a 22%, var(--card)); }
+
+</style>
+</head><body>
+<div class="shell">
+  <header class="top">
+    <div class="brand"><span id="brand-moon" aria-hidden="true"></span><b>Calendario Lunar de Huerta</b></div>
+    <button class="pill" id="pill" type="button" data-a="tab" data-v="registro" data-s="local"><i></i><span id="pill-t">Solo en este dispositivo</span></button>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones"></nav>
+  <main id="vista"></main>
+</div>
+<div class="overlay" id="overlay" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="file-in" accept=".json,application/json" hidden>
+<script>
+(function(){'use strict';
+/* ============================================================
+   LÓGICA PURA (sin DOM): fases lunares, catálogo, cálculos
+   ============================================================ */
+var SYN = 29.530588861;
+var RAD = Math.PI / 180;
+
+var FASES = [
+  { n: 'Luna nueva',       d: 'Descanso del suelo' },
+  { n: 'Luna creciente',   d: 'Fuerza ascendente' },
+  { n: 'Cuarto creciente', d: 'Aumento de savia' },
+  { n: 'Gibosa creciente', d: 'Máximo crecimiento' },
+  { n: 'Luna llena',       d: 'Máxima energía' },
+  { n: 'Gibosa menguante', d: 'Fuerza descendente' },
+  { n: 'Cuarto menguante', d: 'Reducción de savia' },
+  { n: 'Luna menguante',   d: 'Reposo radicular' }
+];
+var PRINCIPALES = ['Luna nueva', 'Cuarto creciente', 'Luna llena', 'Cuarto menguante'];
+var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+var DIAS_SEM = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+var TIPOS = { hoja: 'Hoja', fruto: 'Fruto', raiz: 'Raíz' };
+
+/* ---------- Fechas (siempre como texto AAAA-MM-DD, hora local) ---------- */
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function fmtISO(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parseISO(s) { var p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function hoyISO() { return fmtISO(new Date()); }
+function esISO(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parseISO(s).getTime()); }
+function diasEntre(a, b) {
+  var A = typeof a === 'string' ? parseISO(a) : a, B = typeof b === 'string' ? parseISO(b) : b;
+  return Math.round((Date.UTC(B.getFullYear(), B.getMonth(), B.getDate()) - Date.UTC(A.getFullYear(), A.getMonth(), A.getDate())) / 86400000);
+}
+function sumarDias(iso, n) { var d = parseISO(iso); d.setDate(d.getDate() + n); return fmtISO(d); }
+function diaDelAnio(d) { return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 86400000); }
+function fechaCorta(iso) { var d = parseISO(iso); return d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3); }
+function fechaMedia(iso) { var d = parseISO(iso); return d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3) + ' ' + d.getFullYear(); }
+function fechaLarga(iso) { var d = parseISO(iso); return DIAS_SEM[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
+
+/* ---------- Fase lunar (fórmula de Meeus, Astronomical Algorithms cap. 48) ----------
+   elongacion(): 0° = luna nueva, 90° = cuarto creciente, 180° = llena, 270° = cuarto menguante */
+function julian(d) { return d.getTime() / 86400000 + 2440587.5; }
+function elongacion(d) {
+  var T = (julian(d) - 2451545.0) / 36525;
+  var D = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + T * T * T / 545868;
+  var M = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T;
+  var Mp = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T;
+  var psi = D
+    + 6.289 * Math.sin(Mp * RAD)
+    - 2.100 * Math.sin(M * RAD)
+    + 1.274 * Math.sin((2 * D - Mp) * RAD)
+    + 0.658 * Math.sin(2 * D * RAD)
+    + 0.214 * Math.sin(2 * Mp * RAD)
+    + 0.110 * Math.sin(D * RAD);
+  return ((psi % 360) + 360) % 360;
+}
+function faseInfo(d) {
+  var psi = elongacion(d);
+  return {
+    psi: psi,
+    illum: (1 - Math.cos(psi * RAD)) / 2,
+    idx: Math.floor((psi + 22.5) / 45) % 8,
+    edad: psi / 360 * SYN,
+    crece: psi < 180
+  };
+}
+/* Fase de un día de calendario: se evalúa al mediodía local */
+function faseDelDia(iso) { var d = parseISO(iso); d.setHours(12, 0, 0, 0); return faseInfo(d); }
+
+/* Próximo instante en que la elongación alcanza `objetivo` (0, 90, 180, 270) */
+function proximaFase(desde, objetivo) {
+  var paso = 3 * 3600000, t = desde.getTime();
+  function dist(ms) { var x = elongacion(new Date(ms)) - objetivo; return ((x + 540) % 360) - 180; }
+  var prev = dist(t);
+  for (var i = 0; i < 270; i++) {
+    var nt = t + paso, cur = dist(nt);
+    if (prev < 0 && cur >= 0 && (cur - prev) < 90) {
+      var a = t, b = nt;
+      for (var k = 0; k < 30; k++) { var m = (a + b) / 2; if (dist(m) >= 0) b = m; else a = m; }
+      return new Date(b);
+    }
+    t = nt; prev = cur;
+  }
+  return null;
+}
+/* ¿Algún cuarto principal ocurre durante este día local? Devuelve 0..3 o -1 */
+function principalDelDia(iso) {
+  var d = parseISO(iso);
+  var a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var b = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  var qa = Math.floor(elongacion(a) / 90), qb = Math.floor(elongacion(b) / 90);
+  if (qa === qb) return -1;
+  var q = qb % 4;
+  return { q: q, hora: proximaFase(a, q * 90) };
+}
+
+/* ---------- Dibujo de la luna (SVG) ---------- */
+function lunaSVG(psi, size, uid, detalle) {
+  var r = size / 2 - 1, c = size / 2, k = (1 - Math.cos(psi * RAD)) / 2;
+  var rx = Math.abs(Math.cos(psi * RAD)) * r, lit = '', d = '';
+  var f = function (n) { return Math.round(n * 100) / 100; };
+  if (k >= 0.996) {
+    d = 'M ' + f(c - r) + ' ' + c + ' A ' + f(r) + ' ' + f(r) + ' 0 1 1 ' + f(c + r) + ' ' + c + ' A ' + f(r) + ' ' + f(r) + ' 0 1 1 ' + f(c - r) + ' ' + c + ' Z';
+  } else if (k > 0.004) {
+    var s1, s2;
+    if (psi < 180) { s1 = 1; s2 = psi < 90 ? 0 : 1; }
+    else { s1 = 0; s2 = psi > 270 ? 1 : 0; }
+    d = 'M ' + c + ' ' + f(c - r) + ' A ' + f(r) + ' ' + f(r) + ' 0 0 ' + s1 + ' ' + c + ' ' + f(c + r) +
+        ' A ' + f(rx) + ' ' + f(r) + ' 0 0 ' + s2 + ' ' + c + ' ' + f(c - r) + ' Z';
+  }
+  var svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '" aria-hidden="true" focusable="false">';
+  svg += '<circle class="m-dark" cx="' + c + '" cy="' + c + '" r="' + f(r) + '"/>';
+  if (d) {
+    svg += '<path class="m-lit" d="' + d + '"/>';
+    if (detalle) {
+      svg += '<clipPath id="lc' + uid + '"><path d="' + d + '"/></clipPath><g clip-path="url(#lc' + uid + ')" class="m-mar">' +
+        '<ellipse cx="' + f(c - r * .28) + '" cy="' + f(c - r * .32) + '" rx="' + f(r * .30) + '" ry="' + f(r * .22) + '"/>' +
+        '<ellipse cx="' + f(c + r * .22) + '" cy="' + f(c - r * .05) + '" rx="' + f(r * .26) + '" ry="' + f(r * .30) + '"/>' +
+        '<ellipse cx="' + f(c - r * .35) + '" cy="' + f(c + r * .22) + '" rx="' + f(r * .20) + '" ry="' + f(r * .16) + '"/>' +
+        '<ellipse cx="' + f(c + r * .15) + '" cy="' + f(c + r * .52) + '" rx="' + f(r * .24) + '" ry="' + f(r * .13) + '"/>' +
+        '<circle cx="' + f(c + r * .50) + '" cy="' + f(c - r * .48) + '" r="' + f(r * .10) + '"/>' +
+        '</g>';
+    }
+  }
+  svg += '<circle class="m-edge" cx="' + c + '" cy="' + c + '" r="' + f(r) + '"/></svg>';
+  return svg;
+}
+
+/* ---------- Siembra según la luna ---------- */
+var FAV = { hoja: [1, 2], fruto: [3, 4], raiz: [5, 6] };
+function esFavorable(tipo, idx) { return FAV[tipo] && FAV[tipo].indexOf(idx) >= 0; }
+/* Próxima ventana favorable para un tipo, desde `desdeISO`. */
+function ventanaLunar(tipo, desdeISO) {
+  var ini = null;
+  for (var i = 0; i < 45; i++) {
+    var iso = sumarDias(desdeISO, i), fav = esFavorable(tipo, faseDelDia(iso).idx);
+    if (ini === null) { if (fav) ini = iso; }
+    else if (!fav) return { ini: ini, fin: sumarDias(iso, -1), abierta: ini === desdeISO };
+  }
+  return ini ? { ini: ini, fin: null, abierta: ini === desdeISO } : null;
+}
+
+/* ---------- Actividades y consejos ---------- */
+function actividades(idx) {
+  if (idx === 0 || idx === 7) return [
+    { k: 'abono', t: 'Abonar y compostar', d: 'Aporte de materia orgánica al suelo. Ideal para preparar bancales.', ok: true },
+    { k: 'plagas', t: 'Control de plagas y malezas', d: 'Aplicar preventivos biológicos. Las plagas están menos activas.', ok: true },
+    { k: 'siembra', t: 'Siembra', d: 'No es el momento óptimo. Conviene esperar la luna creciente.', ok: false }
+  ];
+  if (idx === 1 || idx === 2) return [
+    { k: 'siembra', t: 'Siembra de hojas', d: 'Lechuga, espinaca, acelga, repollo, brócoli. Germinación vigorosa.', ok: true },
+    { k: 'abono', t: 'Abonar', d: 'Compost o humus de lombriz. La planta absorbe bien los nutrientes.', ok: true },
+    { k: 'riego', t: 'Riego moderado', d: 'Mantener la humedad constante en las hortalizas de hoja.', ok: true }
+  ];
+  if (idx === 3 || idx === 4) return [
+    { k: 'siembra', t: 'Siembra de frutos', d: 'Tomate, pimentón, calabacín, pepino. Buen momento para trasplantar.', ok: true },
+    { k: 'cosecha', t: 'Cosecha', d: 'Recoger frutos para mejor conservación y sabor.', ok: true },
+    { k: 'riego', t: 'Riego profundo', d: 'Aprovechar la máxima actividad de absorción.', ok: true }
+  ];
+  return [
+    { k: 'siembra', t: 'Siembra de raíces', d: 'Zanahoria, remolacha, rábano, papa, cebolla. Buen almacenamiento.', ok: true },
+    { k: 'plagas', t: 'Control de plagas', d: 'Podar y retirar partes afectadas. Aplicar caldos preventivos.', ok: true },
+    { k: 'cosecha', t: 'Cosecha de raíces', d: 'Bulbos y tubérculos se conservan por más tiempo.', ok: true }
+  ];
+}
+var CONSEJO_FASE = [
+  'Día de descanso para la tierra. Prepare compost, arregle herramientas y planifique la próxima siembra. Evite sembrar o trasplantar.',
+  'Momento ideal para sembrar hojas verdes: lechuga, espinaca, acelga. La savia asciende y favorece el follaje. Abone con compost.',
+  'Continúe con las siembras de hojas y empiece a trasplantar plántulas. El cuarto creciente favorece la germinación. Riego regular.',
+  'Trasplante y siembre tomate, pimentón y calabacín. La energía lunar está cerca de su punto máximo de crecimiento.',
+  'Coseche frutos y hojas para mejor conservación. Riego profundo. Evite podas agresivas: la savia está en la parte aérea.',
+  'Empiece las siembras de raíces: zanahoria, remolacha, rábano. La energía desciende hacia el suelo. Buen momento para podar.',
+  'Siembra de bulbos y tubérculos. Controle plagas y aplique caldos preventivos. Prepare el suelo para el próximo ciclo.',
+  'Cierre del ciclo. Aplique abonos de liberación lenta y controle malezas. No siembre hojas ni frutos.'
+];
+var T_SIEMBRA = {
+  hoja: [
+    { c: 'Siembra', t: 'Profundidad de siembra', x: 'Siembre a 2–3 veces el tamaño de la semilla. Las semillas pequeñas, apenas cubiertas con tierra fina.' },
+    { c: 'Riego', t: 'Primer riego', x: 'Riegue suavemente con rociador para no desplazar las semillas. Mantenga húmedo los primeros 7 días.' },
+    { c: 'Siembra', t: 'Temperatura ideal', x: 'La mayoría de las hortalizas de hoja germina entre 15 y 20 °C. Con más de 25 °C la lechuga puede no brotar.' },
+    { c: 'Siembra', t: 'Distancia entre plantas', x: 'Lechuga 25 cm, espinaca 15 cm, acelga 30 cm, repollo 40 cm, brócoli 50 cm.' },
+    { c: 'Siembra', t: 'Luz solar', x: 'Mínimo 4–6 horas de sol directo. En clima cálido, sombra parcial al mediodía.' }
+  ],
+  fruto: [
+    { c: 'Siembra', t: 'Trasplante con cuidado', x: 'Trasplante cuando la plántula tenga 2–3 hojas verdaderas, preferiblemente al atardecer.' },
+    { c: 'Siembra', t: 'Tutores y soportes', x: 'Tomate y pimentón necesitan tutores de 1,5–2 m. Colóquelos al trasplantar para no dañar raíces.' },
+    { c: 'Riego', t: 'Riego de frutales', x: 'Riego profundo 2–3 veces por semana; el agua debe llegar a 30 cm de profundidad.' },
+    { c: 'Poda', t: 'Poda de chupones', x: 'Retire los brotes laterales del tomate cada 7–10 días y deje 2–3 racimos por planta.' },
+    { c: 'Abono', t: 'Fertilización', x: 'Aplique un fertilizante rico en potasio cuando aparezcan las primeras flores.' }
+  ],
+  raiz: [
+    { c: 'Siembra', t: 'Suelo suelto', x: 'La tierra debe estar bien removida y sin terrones para que la raíz penetre con facilidad.' },
+    { c: 'Siembra', t: 'Profundidad clave', x: 'Zanahoria 1 cm, remolacha 2 cm, papa 10–15 cm, cebolla 2–3 cm, rábano 1,5 cm.' },
+    { c: 'Riego', t: 'Riego inicial', x: 'Riego ligero y frecuente hasta la germinación; luego espacie los riegos.' },
+    { c: 'Siembra', t: 'Raleo obligatorio', x: 'Cuando las plántulas midan 5 cm, deje una cada 5–8 cm. Las que retire se pueden comer.' },
+    { c: 'Siembra', t: 'No trasplantar', x: 'Las raíces no toleran el trasplante. Siembra directa en el lugar definitivo.' }
+  ]
+};
+var T_GENERAL = {
+  riego: [
+    { c: 'Riego', t: 'Mejor hora para regar', x: 'Temprano en la mañana (6–8 am) o al atardecer. Evite el mediodía.' },
+    { c: 'Riego', t: 'Técnica de riego', x: 'Riegue en la base de la planta, no sobre las hojas. El riego por goteo ahorra agua.' },
+    { c: 'Riego', t: 'Prueba del dedo', x: 'Introduzca el dedo 5 cm en la tierra. Si está seca, riegue; el exceso de riego daña más que la falta.' },
+    { c: 'Riego', t: 'Ajuste por lluvia', x: 'Si llovió más de 10 mm en 24 h, omita el riego. Recoja agua lluvia.' },
+    { c: 'Riego', t: 'Cantidad por planta', x: 'Referencia: tomate 2–3 L/día en tiempo seco, lechuga 1–2 L, zanahoria 1,5 L cada 3 días.' },
+    { c: 'Riego', t: 'Cobertura del suelo', x: 'El mulch o cobertura seca conserva la humedad y reduce la frecuencia de riego.' }
+  ],
+  abono: [
+    { c: 'Abono', t: 'Humus de lombriz', x: 'El mejor abono universal. Aplique 2–3 cm alrededor de la base cada 3 semanas.' },
+    { c: 'Abono', t: 'Potasio casero', x: 'Cáscaras de plátano en agua 48 h. Riegue cuando las plantas florecen.' },
+    { c: 'Abono', t: 'Posos de café', x: 'Acidifican el suelo; útiles para tomate. Mézclelos con compost, nunca puros.' },
+    { c: 'Abono', t: 'Cáscara de huevo', x: 'Aporta calcio y previene la pudrición apical del tomate. Muélala fina.' },
+    { c: 'Abono', t: 'Purín de ortiga', x: 'Fermente ortigas en agua 2 semanas. Diluya 1:10 y riegue cada 15 días.' }
+  ],
+  plagas: [
+    { c: 'Plagas', t: 'Infusión de ajo', x: 'Muela 5 dientes de ajo en 1 L de agua, deje reposar 24 h y rocíe cada 5 días.' },
+    { c: 'Plagas', t: 'Jabón potásico', x: 'Disuelva 20 g en 1 L de agua tibia. Rocíe al atardecer.' },
+    { c: 'Plagas', t: 'Trampa de cerveza', x: 'Entierre un recipiente con cerveza al ras del suelo para atrapar babosas.' },
+    { c: 'Plagas', t: 'Mariquitas aliadas', x: 'Atráigalas con eneldo o cilantro en flor. Una mariquita come decenas de pulgones al día.' },
+    { c: 'Plagas', t: 'Rotación de cultivos', x: 'No siembre la misma familia en el mismo bancal dos ciclos seguidos.' },
+    { c: 'Plagas', t: 'Plantas trampa', x: 'Siembre caléndula o capuchina en los bordes para alejar plagas del cultivo.' }
+  ],
+  cosecha: [
+    { c: 'Cosecha', t: 'Mejor hora para cosechar', x: 'Temprano en la mañana, cuando las plantas están más hidratadas.' },
+    { c: 'Cosecha', t: 'Herramientas limpias', x: 'Desinfecte las tijeras con alcohol entre plantas. Corte limpio, no arranque.' },
+    { c: 'Cosecha', t: 'No lavar antes de guardar', x: 'Lave solo antes de consumir; la humedad acelera el deterioro.' },
+    { c: 'Cosecha', t: 'Almacenar raíces', x: 'Zanahorias en caja con arena seca duran 3–4 meses.' },
+    { c: 'Cosecha', t: 'Maduración poscosecha', x: 'Tomates verdes: envuélvalos en papel con una manzana madura.' }
+  ]
+};
+function consejos(idx, iso, n) {
+  var pool;
+  if (idx === 0 || idx === 7) pool = [].concat(T_GENERAL.abono, T_GENERAL.plagas, [T_GENERAL.cosecha[4]]);
+  else if (idx <= 2) pool = [].concat(T_SIEMBRA.hoja, T_GENERAL.riego.slice(0, 3), [T_GENERAL.abono[4]]);
+  else if (idx <= 4) pool = [].concat(T_SIEMBRA.fruto, T_GENERAL.riego.slice(2), T_GENERAL.cosecha.slice(0, 2));
+  else pool = [].concat(T_SIEMBRA.raiz, T_GENERAL.plagas.slice(2, 5), T_GENERAL.cosecha.slice(2, 5));
+  var off = diaDelAnio(parseISO(iso)) % pool.length, out = [];
+  for (var i = 0; i < n && i < pool.length; i++) out.push(pool[(off + i) % pool.length]);
+  return out;
+}
+
+/* ---------- Catálogo de cultivos (valores de referencia, editables) ---------- */
+var CATALOGO = [
+  { n: 'Lechuga',      t: 'hoja',  dc: 60,  dr: 2, da: 15, cont: false, sep: '25–30 cm', prof: '0,5 cm', nota: 'Semillero y trasplante a las 3–4 semanas. Prefiere clima fresco.' },
+  { n: 'Espinaca',     t: 'hoja',  dc: 50,  dr: 2, da: 15, cont: false, sep: '10–15 cm', prof: '1–2 cm', nota: 'Siembra directa. Sube a flor con el calor.' },
+  { n: 'Acelga',       t: 'hoja',  dc: 60,  dr: 2, da: 20, cont: true,  sep: '30 cm',    prof: '2 cm',   nota: 'Se cosechan las hojas externas durante varios meses.' },
+  { n: 'Repollo',      t: 'hoja',  dc: 90,  dr: 3, da: 15, cont: false, sep: '40–50 cm', prof: '0,5–1 cm', nota: 'Semillero y trasplante. Vigilar orugas.' },
+  { n: 'Brócoli',      t: 'hoja',  dc: 90,  dr: 3, da: 15, cont: false, sep: '45–50 cm', prof: '1 cm',   nota: 'Cosechar la cabeza antes de que abra la flor.' },
+  { n: 'Cilantro',     t: 'hoja',  dc: 45,  dr: 2, da: 20, cont: true,  sep: '5–10 cm',  prof: '1 cm',   nota: 'Siembra directa y escalonada cada 2–3 semanas.' },
+  { n: 'Col rizada',   t: 'hoja',  dc: 65,  dr: 3, da: 20, cont: true,  sep: '40 cm',    prof: '1 cm',   nota: 'Cosecha continua de hojas externas.' },
+  { n: 'Tomate',       t: 'fruto', dc: 100, dr: 3, da: 15, cont: true,  sep: '50–60 cm', prof: '0,5–1 cm (semillero)', nota: 'Trasplante con 3–4 hojas verdaderas. Requiere tutor y poda de chupones.' },
+  { n: 'Pimentón',     t: 'fruto', dc: 90,  dr: 3, da: 20, cont: true,  sep: '40–50 cm', prof: '1 cm',   nota: 'Semillero y trasplante. Cosecha escalonada.' },
+  { n: 'Pepino',       t: 'fruto', dc: 60,  dr: 2, da: 15, cont: true,  sep: '40–50 cm', prof: '2 cm',   nota: 'Mejor en espaldera. Riego regular para evitar frutos amargos.' },
+  { n: 'Calabacín',    t: 'fruto', dc: 55,  dr: 3, da: 20, cont: true,  sep: '80–100 cm', prof: '2–3 cm', nota: 'Cosechar tierno y con frecuencia para estimular la producción.' },
+  { n: 'Ahuyama',      t: 'fruto', dc: 110, dr: 4, da: 25, cont: false, sep: '1,5–2 m',  prof: '3–4 cm', nota: 'Necesita espacio. Cosechar cuando el pedúnculo esté seco.' },
+  { n: 'Habichuela',   t: 'fruto', dc: 60,  dr: 3, da: 25, cont: true,  sep: '10–15 cm', prof: '3 cm',   nota: 'Leguminosa que fija nitrógeno: evite el exceso de abono nitrogenado.' },
+  { n: 'Maíz',         t: 'fruto', dc: 100, dr: 4, da: 25, cont: false, sep: '25–30 cm', prof: '4–5 cm', nota: 'Siembre en bloques y no en una sola hilera, para mejorar la polinización.' },
+  { n: 'Fresa',        t: 'fruto', dc: 90,  dr: 2, da: 21, cont: true,  sep: '30 cm',    prof: 'Corona a ras del suelo', nota: 'Retire estolones si busca más fruta.' },
+  { n: 'Zanahoria',    t: 'raiz',  dc: 90,  dr: 3, da: 25, cont: false, sep: '5 cm (raleo)', prof: '1 cm', nota: 'Siembra directa. Evite el exceso de nitrógeno.' },
+  { n: 'Remolacha',    t: 'raiz',  dc: 65,  dr: 3, da: 25, cont: false, sep: '8–10 cm',  prof: '2 cm',   nota: 'Cada semilla produce varias plántulas: ralear.' },
+  { n: 'Rábano',       t: 'raiz',  dc: 28,  dr: 2, da: 30, cont: false, sep: '5 cm',     prof: '1–1,5 cm', nota: 'Cultivo rápido; cosechar a tiempo para que no se ahueque.' },
+  { n: 'Papa',         t: 'raiz',  dc: 120, dr: 5, da: 30, cont: false, sep: '30–40 cm', prof: '10–15 cm', nota: 'Aporque a los 30–45 días. Cosechar cuando el follaje se seque.' },
+  { n: 'Cebolla larga', t: 'raiz', dc: 100, dr: 3, da: 20, cont: true,  sep: '15–20 cm', prof: 'Hijuelos enterrados 3–5 cm', nota: 'Se puede cosechar por macollas dejando la raíz para que rebrote.' },
+  { n: 'Ajo',          t: 'raiz',  dc: 150, dr: 4, da: 25, cont: false, sep: '10–15 cm', prof: '3–5 cm, punta hacia arriba', nota: 'Siembre dientes sanos. Suspenda el riego 2–3 semanas antes de cosechar.' },
+  { n: 'Maní',         t: 'fruto', dc: 130, dr: 4, da: 30, cont: false, sep: '20–30 cm', prof: '3–5 cm', nota: 'Prefiere suelo suelto y cálido. Las vainas se forman bajo tierra.' }
+];
+function buscarCatalogo(n) { for (var i = 0; i < CATALOGO.length; i++) if (CATALOGO[i].n === n) return CATALOGO[i]; return null; }
+function sinAcentos(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+/* Reconoce "tomates", "Lechugas", "zanahoria criolla"... como entradas del catálogo */
+function buscarCatalogoFlexible(nombre) {
+  var q = sinAcentos(nombre);
+  if (q.length < 3) return null;
+  for (var i = 0; i < CATALOGO.length; i++) {
+    var n = sinAcentos(CATALOGO[i].n);
+    if (q === n) return CATALOGO[i];
+    if (q.length >= 4 && (q.indexOf(n) === 0 || (n.indexOf(q) === 0 && q.length >= 5))) return CATALOGO[i];
+  }
+  return null;
+}
+/* ---------- Modelo de datos ---------- */
+var EV_TIPOS = ['riego', 'abono', 'plagas', 'poda', 'cosecha', 'nota'];
+function nuevoId(prefijo) { return (prefijo || 'x') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function limpiarTexto(s, max) { return String(s == null ? '' : s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, max); }
+function numPos(v, def, max) { var n = Number(v); return (isFinite(n) && n > 0) ? Math.min(n, max) : def; }
+
+function normalizarEvento(e) {
+  if (!e || EV_TIPOS.indexOf(e.tipo) < 0 || !esISO(e.fecha)) return null;
+  var o = { id: /^[A-Za-z0-9_-]{3,40}$/.test(e.id || '') ? e.id : nuevoId('e'), fecha: e.fecha, tipo: e.tipo };
+  if (e.tipo === 'cosecha' && Number(e.cantidad) > 0) { o.cantidad = Math.min(Number(e.cantidad), 1e6); o.unidad = ['kg', 'unid', 'manojos'].indexOf(e.unidad) >= 0 ? e.unidad : 'kg'; }
+  if (e.via === 'lluvia' && e.tipo === 'riego') o.via = 'lluvia';
+  if (e.nota) o.nota = limpiarTexto(e.nota, 500);
+  return o;
+}
+function normalizarCultivo(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  var nombre = limpiarTexto(raw.nombre, 60).trim();
+  if (!nombre || !TIPOS[raw.tipo] || !esISO(raw.fechaSiembra)) return null;
+  var c = {
+    id: /^[A-Za-z0-9_-]{3,40}$/.test(raw.id || '') ? raw.id : nuevoId('c'),
+    nombre: nombre,
+    tipo: raw.tipo,
+    fechaSiembra: raw.fechaSiembra,
+    parcela: limpiarTexto(raw.parcela, 60).trim(),
+    cantidad: raw.cantidad ? Math.min(Math.round(Number(raw.cantidad)) || 0, 100000) : 0,
+    notas: limpiarTexto(raw.notas, 1000),
+    diasCosecha: Math.round(numPos(raw.diasCosecha, 70, 1000)),
+    diasRiego: Math.round(numPos(raw.diasRiego, 3, 60)),
+    diasAbono: Math.round(numPos(raw.diasAbono, 20, 365)),
+    continuo: !!raw.continuo,
+    estado: raw.estado === 'cosechado' ? 'cosechado' : 'activo',
+    eventos: [],
+    creado: typeof raw.creado === 'string' ? raw.creado : new Date().toISOString(),
+    actualizado: typeof raw.actualizado === 'string' ? raw.actualizado : new Date().toISOString()
+  };
+  (Array.isArray(raw.eventos) ? raw.eventos : []).slice(0, 3000).forEach(function (e) { var n = normalizarEvento(e); if (n) c.eventos.push(n); });
+  return c;
+}
+/* Formato de la versión anterior de la app: {nombre, fechaSiembra, tipo, ultimoRiego, ultimoAbono} */
+function convertirAntiguo(a) {
+  if (!a || typeof a !== 'object' || !a.nombre || !a.fechaSiembra) return null;
+  var cat = buscarCatalogoFlexible(a.nombre);
+  var base = { nombre: a.nombre, tipo: a.tipo, fechaSiembra: String(a.fechaSiembra).slice(0, 10), eventos: [] };
+  var def = { hoja: [45, 2, 14], fruto: [75, 3, 21], raiz: [70, 4, 18] }[a.tipo] || [70, 3, 20];
+  base.diasCosecha = cat ? cat.dc : def[0]; base.diasRiego = cat ? cat.dr : def[1]; base.diasAbono = cat ? cat.da : def[2];
+  base.continuo = cat ? cat.cont : false;
+  if (a.ultimoRiego) base.eventos.push({ fecha: String(a.ultimoRiego).slice(0, 10), tipo: 'riego' });
+  if (a.ultimoAbono) base.eventos.push({ fecha: String(a.ultimoAbono).slice(0, 10), tipo: 'abono' });
+  return normalizarCultivo(base);
+}
+
+/* ---------- Cálculos por cultivo ---------- */
+function ultimoEvento(c, tipo) {
+  var f = null;
+  (c.eventos || []).forEach(function (e) { if (e.tipo === tipo && (!f || e.fecha > f)) f = e.fecha; });
+  return f;
+}
+function nivelDe(falta, soonDias) { return falta <= 0 ? 'urgent' : falta <= soonDias ? 'soon' : 'ok'; }
+function estadoRiego(c, hoy) {
+  var ult = ultimoEvento(c, 'riego') || c.fechaSiembra, prox = sumarDias(ult, c.diasRiego), falta = diasEntre(hoy, prox);
+  return { ult: ult, prox: prox, falta: falta, nivel: nivelDe(falta, 1) };
+}
+function estadoAbono(c, hoy) {
+  var ult = ultimoEvento(c, 'abono') || c.fechaSiembra, prox = sumarDias(ult, c.diasAbono), falta = diasEntre(hoy, prox);
+  return { ult: ult, prox: prox, falta: falta, nivel: nivelDe(falta, 2) };
+}
+function estadoCosecha(c, hoy) {
+  var vida = diasEntre(c.fechaSiembra, hoy), total = c.diasCosecha, falta = total - vida;
+  var pct = Math.max(0, Math.min(100, Math.round(vida / total * 100)));
+  var etapa = vida < 0 ? 'Programado' : c.estado === 'cosechado' ? 'Cosechado' : falta <= 0 ? 'Cosecha' : pct < 15 ? 'Germinación' : pct < 70 ? 'Desarrollo' : 'Maduración';
+  var kg = 0, n = 0;
+  (c.eventos || []).forEach(function (e) { if (e.tipo === 'cosecha') { n++; if (e.unidad === 'kg' && e.cantidad) kg += e.cantidad; } });
+  return { vida: vida, total: total, falta: falta, pct: pct, fecha: sumarDias(c.fechaSiembra, total), etapa: etapa,
+           nivel: c.estado === 'cosechado' ? 'ok' : falta <= 0 ? 'listo' : falta <= 7 ? 'soon' : 'ok', nCosechas: n, kg: kg };
+}
+function cuando(falta) {
+  if (falta < 0) return 'Atrasado ' + (-falta) + (falta === -1 ? ' día' : ' días');
+  if (falta === 0) return 'Hoy';
+  if (falta === 1) return 'Mañana';
+  return 'En ' + falta + ' días';
+}
+function tareasHoy(cultivos, hoy) {
+  var t = [];
+  cultivos.forEach(function (c) {
+    if (c.estado !== 'activo' || c.fechaSiembra > hoy) return;
+    var r = estadoRiego(c, hoy), a = estadoAbono(c, hoy), k = estadoCosecha(c, hoy);
+    if (k.nivel === 'listo') t.push({ id: c.id, tipo: 'cosecha', falta: k.falta, orden: 0 });
+    if (r.nivel === 'urgent') t.push({ id: c.id, tipo: 'riego', falta: r.falta, orden: 1 });
+    if (a.nivel === 'urgent') t.push({ id: c.id, tipo: 'abono', falta: a.falta, orden: 2 });
+  });
+  t.sort(function (x, y) { return x.orden - y.orden || x.falta - y.falta; });
+  return t;
+}
+function resumenCosecha(cultivos) {
+  var m = {};
+  cultivos.forEach(function (c) {
+    (c.eventos || []).forEach(function (e) {
+      if (e.tipo === 'cosecha' && e.unidad === 'kg' && e.cantidad) m[c.nombre] = (m[c.nombre] || 0) + e.cantidad;
+    });
+  });
+  return Object.keys(m).map(function (k) { return { n: k, kg: m[k] }; }).sort(function (a, b) { return b.kg - a.kg; });
+}
+function resumenActividad(cultivos, hoy, dias) {
+  var m = { riego: 0, abono: 0, plagas: 0, poda: 0, cosecha: 0 };
+  cultivos.forEach(function (c) {
+    (c.eventos || []).forEach(function (e) {
+      var d = diasEntre(e.fecha, hoy);
+      if (d >= 0 && d < dias && m[e.tipo] !== undefined) m[e.tipo]++;
+    });
+  });
+  return m;
+}
+
+/* ---------- Respaldo ---------- */
+function crearRespaldo(cultivos) {
+  return JSON.stringify({ app: 'huerta-lunar', version: 2, exportado: new Date().toISOString(), cultivos: cultivos }, null, 1);
+}
+function leerRespaldo(texto) {
+  var data = JSON.parse(texto), lista = [];
+  var arr = Array.isArray(data) ? data : (data && Array.isArray(data.cultivos) ? data.cultivos : null);
+  if (!arr) throw new Error('El archivo no tiene el formato de un respaldo de Huerta Lunar.');
+  arr.slice(0, 500).forEach(function (r) {
+    var c = (r && Array.isArray(r.eventos)) || (r && r.id) ? normalizarCultivo(r) : (convertirAntiguo(r) || normalizarCultivo(r));
+    if (c) lista.push(c);
+  });
+  return lista;
+}
+function csvCampo(v) { v = v == null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function crearCSV(cultivos) {
+  var filas = [['fecha', 'cultivo', 'tipo_cultivo', 'parcela', 'actividad', 'cantidad', 'unidad', 'via', 'nota']];
+  cultivos.forEach(function (c) {
+    (c.eventos || []).forEach(function (e) { filas.push([e.fecha, c.nombre, c.tipo, c.parcela, e.tipo, e.cantidad || '', e.unidad || '', e.via || '', e.nota || '']); });
+    filas.push([c.fechaSiembra, c.nombre, c.tipo, c.parcela, 'siembra', c.cantidad || '', c.cantidad ? 'plantas' : '', '', '']);
+  });
+  var cuerpo = filas.slice(1).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+  return '﻿' + [filas[0]].concat(cuerpo).map(function (f) { return f.map(csvCampo).join(','); }).join('\n');
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { elongacion: elongacion, faseInfo: faseInfo, faseDelDia: faseDelDia, proximaFase: proximaFase, principalDelDia: principalDelDia,
+    ventanaLunar: ventanaLunar, lunaSVG: lunaSVG, normalizarCultivo: normalizarCultivo, convertirAntiguo: convertirAntiguo, estadoRiego: estadoRiego,
+    estadoAbono: estadoAbono, estadoCosecha: estadoCosecha, tareasHoy: tareasHoy, leerRespaldo: leerRespaldo, crearRespaldo: crearRespaldo,
+    crearCSV: crearCSV, resumenCosecha: resumenCosecha, resumenActividad: resumenActividad, consejos: consejos, actividades: actividades,
+    sumarDias: sumarDias, diasEntre: diasEntre, fmtISO: fmtISO, parseISO: parseISO, cuando: cuando, CATALOGO: CATALOGO, FASES: FASES };
+}
+
+/* ============================================================
+   GUÍAS DE CULTIVO (antes, durante y después de la siembra),
+   colores e ilustraciones. Valores de referencia para clima
+   andino templado-frío; ajústelos a su finca.
+   despues: [día desde, día hasta, recomendación]
+   ============================================================ */
+var COLOR_CULT = {
+  'Lechuga': '#4fb35a', 'Espinaca': '#2e8b57', 'Acelga': '#2fa383', 'Repollo': '#8fc96a', 'Brócoli': '#3f9d4a', 'Cilantro': '#6cbf3a', 'Col rizada': '#2f7d5c',
+  'Tomate': '#e5484d', 'Pimentón': '#f0a020', 'Pepino': '#4fae6a', 'Calabacín': '#8bbd3c', 'Ahuyama': '#f08a24', 'Habichuela': '#6ab04c', 'Maíz': '#e9b82e', 'Fresa': '#e0457b', 'Maní': '#c98b4a',
+  'Zanahoria': '#f28c28', 'Remolacha': '#b0306a', 'Rábano': '#d94a7a', 'Papa': '#c49a5a', 'Cebolla larga': '#7cc242', 'Ajo': '#a678c8'
+};
+var COLOR_TIPO = { hoja: '#4fb35a', fruto: '#e8604c', raiz: '#e39a2d' };
+function colorCultivo(c) {
+  var cat = buscarCatalogoFlexible(c.nombre);
+  if (cat && COLOR_CULT[cat.n]) return COLOR_CULT[cat.n];
+  return COLOR_TIPO[c.tipo] || '#4fb35a';
+}
+function catalogoDe(c) { return buscarCatalogoFlexible(c.nombre); }
+
+var GUIA_TIPO = {
+  hoja: {
+    antes: [
+      'Prepare la cama: afloje el suelo 20–25 cm e incorpore compost maduro (3–4 kg por m²) entre 1 y 2 semanas antes.',
+      'Rote: no repita en la misma cama hortalizas de hoja de la misma familia dos ciclos seguidos.',
+      'Deje el riego listo: las hojas necesitan humedad pareja para crecer tiernas.',
+      'Escoja semilla o plántulas sanas; si usa semillero, endurezca las plántulas 5–7 días al sol antes de trasplantar.'
+    ],
+    durante: [
+      'Siembre o trasplante en la tarde o en día nublado para reducir el estrés.',
+      'Respete la distancia del catálogo y no entierre el cuello de la planta.',
+      'Riegue con suavidad inmediatamente después de sembrar.'
+    ],
+    despues: [
+      [1, 10, 'Mantenga el suelo húmedo, sin encharcar. Reponga las plántulas que no prendieron.'],
+      [10, 30, 'Deshierbe con cuidado y cubra el suelo con paja u hojarasca (acolchado). Abone con humus o té de compost cada 15 días.'],
+      [30, 60, 'Vigile babosas, orugas y pulgones; revise el envés de las hojas. Evite mojar el follaje al final de la tarde.'],
+      [60, 120, 'Coseche en la mañana, cuando la hoja esté turgente. Escalone nuevas siembras cada 2–3 semanas.']
+    ]
+  },
+  fruto: {
+    antes: [
+      'Suelo profundo y bien drenado, con compost maduro (4–5 kg por m²); evite estiércol fresco.',
+      'Rote: no siembre después de cultivos de la misma familia (tomate, papa, pimentón) para cortar el ciclo de plagas.',
+      'Prepare tutores o espalderas antes de sembrar, para no dañar las raíces después.',
+      'Proteja del viento y de la lluvia directa si su zona es muy húmeda: favorece hongos.'
+    ],
+    durante: [
+      'Siembre en suelo húmedo y a la profundidad indicada en el catálogo.',
+      'Deje espacio para que circule el aire entre plantas.',
+      'Ponga un puñado de compost en el hoyo y riegue bien.'
+    ],
+    despues: [
+      [1, 15, 'Riego regular sin encharcar; proteja las plántulas del sol fuerte las primeras semanas.'],
+      [15, 40, 'Tutore, deshierbe y acolche. Abone con compost o bocashi cada 15–20 días.'],
+      [40, 80, 'Floración y cuajado: riego constante (la irregularidad daña los frutos). Vigile plagas y manchas en hojas.'],
+      [80, 200, 'Coseche con frecuencia para estimular nueva producción y retire frutos dañados.']
+    ]
+  },
+  raiz: {
+    antes: [
+      'Suelo suelto y profundo, sin piedras ni terrones: la raíz crece torcida si encuentra obstáculos.',
+      'Evite estiércol fresco y exceso de nitrógeno; prefiera compost bien maduro.',
+      'Rote con cultivos de otra familia; no repita raíces en la misma cama.',
+      'Nivele la cama y asegure buen drenaje para evitar pudriciones.'
+    ],
+    durante: [
+      'Siembre a la profundidad del catálogo y cubra con tierra fina.',
+      'Mantenga húmedo pero sin encharcar hasta que emerjan.',
+      'Marque las hileras: la germinación puede tardar 1–2 semanas.'
+    ],
+    despues: [
+      [1, 20, 'Riego ligero y frecuente hasta la emergencia; elimine malezas con cuidado.'],
+      [20, 60, 'Ralee a la distancia indicada y aporque ligeramente. Abone con compost o ceniza (potasio).'],
+      [60, 120, 'Engrosamiento de la raíz: riego regular; la sequía seguida de lluvia agrieta y deforma.'],
+      [120, 220, 'Coseche cuando alcance el tamaño y suspenda el riego unos días antes para mejorar la conservación.']
+    ]
+  }
+};
+
+var GUIA = {
+  'Tomate': {
+    antes: [
+      'Suelo con pH entre 6,0 y 6,8, bien drenado, con compost maduro (3–5 kg por m²) incorporado 2–3 semanas antes.',
+      'Rotación: no lo siembre donde hubo tomate, papa, pimentón o berenjena en el último ciclo (comparten gota y marchitez). Va bien después de leguminosas o cebolla.',
+      'Plántulas de 4–5 semanas con tallo grueso, 4–5 hojas verdaderas y sin manchas; endurézcalas al sol 5–7 días.',
+      'Deje listos tutores de 1,8–2 m o una espaldera. Si llueve mucho, un techo plástico (túnel) reduce la gota (Phytophthora).'
+    ],
+    durante: [
+      'Trasplante en la tarde o en día nublado.',
+      'Entierre el tallo hasta las primeras hojas: emite raíces nuevas y la planta queda más firme.',
+      'Distancia: 50–60 cm entre plantas y 80–100 cm entre hileras. Ponga compost en el hoyo y riegue abundante.',
+      'Coloque el tutor desde el primer día, para no dañar raíces después.'
+    ],
+    despues: [
+      [1, 10, 'Riego regular sin encharcar; proteja del sol fuerte y del viento. Reponga plántulas muertas.'],
+      [10, 30, 'Ate al tutor y empiece a quitar chupones (brotes entre tallo y hoja) cada semana. Acolche con paja u hojarasca.'],
+      [30, 60, 'Abone con compost o bocashi y aporte potasio y calcio (ceniza, cáscara de huevo molida). Retire hojas bajas que toquen el suelo. Vigile gota (manchas oscuras), mosca blanca, trips y minador.'],
+      [60, 100, 'Floración y cuajado: riego constante, porque los cambios bruscos causan pudrición apical. Despunte cuando tenga 6–8 racimos.'],
+      [90, 200, 'Coseche pintón o rojo cada 3–5 días. Retire plantas enfermas y no las eche al compost.']
+    ]
+  },
+  'Lechuga': {
+    antes: [
+      'Cama de suelo suelto y rico en materia orgánica, pH 6,0–7,0; compost maduro 1–2 semanas antes.',
+      'Prefiere clima fresco (12–20 °C). Con más de 25 °C se espiga (sube a flor) y amarga.',
+      'Semillero de 3–4 semanas: la semilla es pequeña y necesita luz, cúbrala apenas con 0,5 cm de sustrato fino.',
+      'No la siembre después de otras compuestas (lechuga, achicoria); es buena compañera de cebolla, ajo y zanahoria.'
+    ],
+    durante: [
+      'Trasplante con 3–4 hojas verdaderas, en la tarde o en día nublado.',
+      'Distancia: 25–30 cm entre plantas. El cuello a ras del suelo y el cogollo sin cubrir de tierra.',
+      'Riegue suavemente al terminar.'
+    ],
+    despues: [
+      [1, 10, 'Humedad constante y liviana, a diario si hace calor. Reponga las que no prendieron.'],
+      [10, 30, 'Deshierbe, acolche ligero y abone con humus o té de compost cada 15 días.'],
+      [30, 50, 'Vigile babosas (trampas de cerveza, ceniza en el contorno) y hongos: riegue por la mañana y evite mojar las hojas.'],
+      [50, 70, 'Coseche en la mañana cuando el cogollo esté firme, cortando a ras. Si ve que se alarga el tallo, coseche ya. Siembre la siguiente tanda para escalonar.']
+    ]
+  },
+  'Cebolla larga': {
+    antes: [
+      'Se propaga por hijuelos (macollas): escoja plantas sanas con hijuelos de 15–20 cm, sin pudrición.',
+      'Prepare los hijuelos: recorte las hojas a unos 15 cm y limpie las raíces viejas.',
+      'Suelo suelto, bien drenado y con materia orgánica madura, pH 6,0–7,0. El encharcamiento la pudre.',
+      'Rotación: espere 2–3 años para repetir aliáceas (cebolla, ajo, puerro) en la misma cama; así corta hongos y trips.'
+    ],
+    durante: [
+      'Haga surcos de 10–15 cm de profundidad.',
+      'Entierre los hijuelos 3–5 cm, hasta cubrir la base blanca. Distancia: 15–20 cm entre plantas, 30–40 cm entre surcos.',
+      'Compacte suavemente y riegue ligero.'
+    ],
+    despues: [
+      [1, 15, 'Riegos frecuentes y ligeros hasta que prendan y rebroten.'],
+      [15, 45, 'Deshierbe con cuidado y abone con compost, humus o bocashi cada 20 días (necesita nitrógeno para follaje).'],
+      [45, 75, 'Aporque (arrime tierra a la base) para alargar la parte blanca. Vigile trips (aspecto plateado en las hojas) y manchas moradas; trampas azules o amarillas y jabón potásico ayudan.'],
+      [75, 140, 'Coseche arrancando la mata o cortando a 5 cm sobre la base para que rebrote. Deje 1–2 hijuelos para la próxima siembra.']
+    ]
+  },
+  'Ajo': {
+    antes: [
+      'Semilla: dientes de bulbos grandes y sanos, de una variedad adaptada a clima frío-templado. Sepárelos 1–2 días antes, sin quitar la túnica (cáscara).',
+      'Descarte los dientes con manchas, moho o blandos. Un baño corto en infusión de cola de caballo o ceniza ayuda a prevenir hongos.',
+      'Suelo profundo y suelto, pH 6,0–7,0, con compost maduro y sin encharcamiento.',
+      'Rotación: 3 años sin aliáceas en la misma cama (pudrición blanca, Fusarium, trips).'
+    ],
+    durante: [
+      'Siembre cada diente con la punta hacia arriba, a 3–5 cm de profundidad.',
+      'Distancia: 10–15 cm entre plantas y 25–30 cm entre hileras.',
+      'Cubra con tierra y una capa de paja (acolchado) para conservar humedad.'
+    ],
+    despues: [
+      [1, 20, 'Emerge entre los 8 y 15 días. Riego moderado, sin encharcar.'],
+      [20, 60, 'Deshierbe y abone con compost; el nitrógeno sirve al principio, para el follaje.'],
+      [60, 100, 'Formación del bulbo: reduzca el nitrógeno, aporte potasio (ceniza) y mantenga riego moderado y parejo.'],
+      [100, 140, 'Si aparece el escapo (tallo con flor), córtelo para que el bulbo engorde. Suspenda el riego 2–3 semanas antes de cosechar.'],
+      [140, 190, 'Coseche cuando la mitad a dos tercios de las hojas estén amarillas. Cure a la sombra, en lugar ventilado, 2–3 semanas y cuélguelo en trenzas.']
+    ]
+  },
+  'Maní': {
+    antes: [
+      'Prefiere clima cálido (20–30 °C), pleno sol y suelo suelto, franco o arenoso, para que las clavijas puedan entrar y formar las vainas. En sitios frescos el ciclo se alarga.',
+      'pH 5,5–7,0. Si el suelo es ácido, aplique cal dolomita o yeso agrícola: el calcio es clave para llenar las vainas.',
+      'Es leguminosa: no necesita mucho nitrógeno. Va bien después de maíz o cereales; evite sembrarlo tras otra leguminosa o papa.',
+      'Semilla: maní en cáscara, sano y sin tostar. Desgránelo justo antes de sembrar para no dañar la cubierta.'
+    ],
+    durante: [
+      'Siembre 2–3 semillas por golpe a 3–5 cm de profundidad.',
+      'Distancia: 20–30 cm entre plantas y 50–60 cm entre surcos.',
+      'Siembre en suelo húmedo; evite encharcar. Proteja la semilla de aves y hormigas.'
+    ],
+    despues: [
+      [1, 15, 'Germina entre los 5 y 10 días. Cuide de aves y hormigas, y reponga fallas.'],
+      [15, 35, 'Deshierbe y suelte la tierra alrededor de la planta con suavidad.'],
+      [35, 60, 'Floración (flores amarillas): las clavijas bajan al suelo. Mantenga la tierra suelta y húmeda, aporque ligero y aplique calcio.'],
+      [60, 100, 'Llenado de vainas bajo tierra: riego regular, nunca encharcado. Vigile manchas en las hojas (cercospora) y pudriciones.'],
+      [100, 150, 'Coseche cuando las hojas amarilleen y el interior de la cáscara muestre manchas oscuras. Arranque con horquilla, seque 1–2 semanas al aire y almacene bien seco; descarte vainas con moho.']
+    ]
+  }
+};
+function guiaDe(c) {
+  var cat = catalogoDe(c);
+  var g = cat && GUIA[cat.n] ? GUIA[cat.n] : GUIA_TIPO[c.tipo] || GUIA_TIPO.hoja;
+  return { g: g, especifica: !!(cat && GUIA[cat.n]), cat: cat };
+}
+function guiaPorNombre(n) { var cat = buscarCatalogo(n); return cat ? { g: GUIA[cat.n] || GUIA_TIPO[cat.t], especifica: !!GUIA[cat.n], cat: cat } : null; }
+function faseGuia(vida) { return vida < 0 ? 'antes' : vida <= 2 ? 'durante' : 'despues'; }
+
+/* ---------- Ilustraciones (SVG original, sin imágenes externas) ---------- */
+function suelo() {
+  return '<path d="M0 72 Q30 66 60 70 T120 68 V90 H0Z" fill="#8a6240"/><path d="M0 80 Q40 76 120 80 V90 H0Z" fill="#6b4a30"/>' +
+    '<circle cx="14" cy="78" r="1.6" fill="#a4795a"/><circle cx="96" cy="80" r="1.4" fill="#a4795a"/><circle cx="70" cy="84" r="1.2" fill="#a4795a"/>';
+}
+function ilLechuga() {
+  var s = '<g transform="translate(60 68)">', ang = [-78, -54, -30, 30, 54, 78, -12, 12], i;
+  for (i = 0; i < ang.length; i++) {
+    s += '<ellipse rx="9" ry="21" transform="rotate(' + ang[i] + ') translate(0 -17)" fill="' + (i < 6 ? '#3f9a4b' : '#62b85f') + '"/>';
+  }
+  s += '<ellipse rx="10" ry="16" transform="translate(0 -14)" fill="#86cf6d"/><ellipse rx="6" ry="11" transform="translate(0 -15)" fill="#b4e08a"/><path d="M0 0V-22" stroke="#3f9a4b" stroke-width="1" opacity=".5"/></g>';
+  return s + suelo();
+}
+function ilTomate() {
+  var s = '<line x1="92" y1="10" x2="92" y2="72" stroke="#9c7447" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M60 72 C60 55 62 40 60 14" stroke="#3d8b3d" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M62 30 L92 26M62 52 L92 50" stroke="#c9b48a" stroke-width="1" opacity=".7"/>';
+  [[46, 28, -30], [74, 22, 30], [44, 52, -25], [76, 46, 25], [60, 12, 0]].forEach(function (l) {
+    s += '<ellipse cx="' + l[0] + '" cy="' + l[1] + '" rx="11" ry="5.5" transform="rotate(' + l[2] + ' ' + l[0] + ' ' + l[1] + ')" fill="#4c9e46"/>';
+  });
+  [[42, 44, 9], [78, 38, 8], [58, 58, 9.5], [66, 26, 6.5]].forEach(function (f) {
+    s += '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="' + f[2] + '" fill="#e5484d"/><circle cx="' + (f[0] - f[2] * .3) + '" cy="' + (f[1] - f[2] * .35) + '" r="' + f[2] * .25 + '" fill="#fff" opacity=".4"/>' +
+      '<path d="M' + (f[0] - 3.5) + ' ' + (f[1] - f[2] + 1) + ' l3.5 3 l3.5 -3 l-3.5 -2z" fill="#2f7a35"/>';
+  });
+  return s + suelo();
+}
+function ilCebolla() {
+  var s = '', i, xs = [44, 52, 60, 68, 76], hs = [34, 18, 10, 20, 32];
+  for (i = 0; i < xs.length; i++) {
+    s += '<path d="M' + xs[i] + ' 70 C' + (xs[i] + (i - 2) * 3) + ' ' + (70 - hs[i] * .5) + ' ' + (xs[i] + (i - 2) * 5) + ' ' + (70 - hs[i]) + ' ' + (xs[i] + (i - 2) * 6) + ' ' + (70 - hs[i] - 30) +
+      '" stroke="' + (i % 2 ? '#6fba3a' : '#4f9d2f') + '" stroke-width="5" fill="none" stroke-linecap="round"/>';
+  }
+  s += '<path d="M40 70 Q60 60 80 70" stroke="#f3f6ea" stroke-width="9" fill="none" stroke-linecap="round"/>';
+  s += suelo() + '<path d="M46 74 l-4 9 M54 74 l-1 10 M62 74 l1 10 M70 74 l3 9 M78 74 l5 8" stroke="#efe6d2" stroke-width="1.3" stroke-linecap="round"/>';
+  return s;
+}
+function ilAjo() {
+  var s = '<path d="M52 54 C48 38 50 22 44 10M60 52 C60 36 60 22 62 8M68 54 C72 38 70 24 78 12" stroke="#5fae45" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+  s += suelo();
+  s += '<path d="M60 40 C52 44 38 52 40 64 C42 74 52 78 60 78 C68 78 78 74 80 64 C82 52 68 44 60 40Z" fill="#f4eef8" stroke="#a678c8" stroke-width="2"/>';
+  s += '<path d="M60 42 C56 54 56 68 60 78M52 46 C46 56 46 68 52 77M68 46 C74 56 74 68 68 77" stroke="#c9b3de" stroke-width="1.4" fill="none"/>';
+  s += '<path d="M54 80 l-3 7M60 80 v8M66 80 l3 7" stroke="#efe6d2" stroke-width="1.4" stroke-linecap="round"/>';
+  return s;
+}
+function ilMani() {
+  var s = '<path d="M60 70 C60 55 58 42 60 24" stroke="#3d8b3d" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  [[60, 26, 0], [46, 44, -50], [74, 44, 50], [52, 58, -70], [68, 58, 70]].forEach(function (l) {
+    s += '<g transform="translate(' + l[0] + ' ' + l[1] + ') rotate(' + l[2] + ')"><ellipse cx="-6" cy="-5" rx="6.5" ry="4.3" fill="#4fa94b"/><ellipse cx="6" cy="-5" rx="6.5" ry="4.3" fill="#62bb58"/><ellipse cx="-5" cy="2" rx="6" ry="4" fill="#4fa94b"/><ellipse cx="5" cy="2" rx="6" ry="4" fill="#62bb58"/></g>';
+  });
+  s += '<circle cx="76" cy="30" r="3.4" fill="#f6c640"/><circle cx="76" cy="30" r="1.3" fill="#e7a317"/>';
+  s += suelo();
+  s += '<path d="M60 70 Q50 76 42 80M60 70 Q70 78 78 82" stroke="#d9c7a0" stroke-width="1.1" fill="none"/>';
+  [[40, 81, -15], [80, 83, 20], [58, 84, 5]].forEach(function (p) {
+    s += '<g transform="translate(' + p[0] + ' ' + p[1] + ') rotate(' + p[2] + ')"><ellipse cx="-3.6" cy="0" rx="4.8" ry="3.7" fill="#e3c08a" stroke="#b98f55" stroke-width=".8"/><ellipse cx="3.6" cy="0" rx="4.8" ry="3.7" fill="#e3c08a" stroke="#b98f55" stroke-width=".8"/></g>';
+  });
+  return s;
+}
+function ilHoja(col) {
+  var s = '<g transform="translate(60 68)">', i, ang = [-70, -35, 0, 35, 70];
+  for (i = 0; i < 5; i++) s += '<ellipse rx="8" ry="22" transform="rotate(' + ang[i] + ') translate(0 -18)" fill="' + col + '" opacity="' + (i === 2 ? 1 : .86) + '"/>';
+  return s + '<path d="M0 0V-34" stroke="#fff" stroke-width="1.2" opacity=".45"/></g>' + suelo();
+}
+function ilFruto(col) {
+  var s = '<path d="M30 72 C34 50 52 40 60 30 C70 22 84 22 92 14" stroke="#3d8b3d" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  [[44, 46, -35], [70, 30, 35], [86, 20, 25]].forEach(function (l) { s += '<ellipse cx="' + l[0] + '" cy="' + l[1] + '" rx="10" ry="5" transform="rotate(' + l[2] + ' ' + l[0] + ' ' + l[1] + ')" fill="#4c9e46"/>'; });
+  [[40, 64, 9], [66, 52, 10], [84, 40, 8]].forEach(function (f) { s += '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="' + f[2] + '" fill="' + col + '"/><circle cx="' + (f[0] - f[2] * .3) + '" cy="' + (f[1] - f[2] * .35) + '" r="' + f[2] * .24 + '" fill="#fff" opacity=".4"/>'; });
+  return s + suelo();
+}
+function ilRaiz(col) {
+  var s = '<g transform="translate(60 72)"><path d="M-9 -4 C-8 12 -2 22 0 24 C2 22 8 12 9 -4Z" fill="' + col + '" transform="translate(0 -2)"/>' +
+    '<path d="M0 -6 C-14 -26 -22 -36 -26 -42M0 -6 C-2 -30 -2 -40 0 -48M0 -6 C14 -26 22 -36 26 -42" stroke="#4f9d3f" stroke-width="4.5" fill="none" stroke-linecap="round"/></g>';
+  return s + '<path d="M0 72 Q30 66 60 70 T120 68 V90 H0Z" fill="#8a6240" opacity=".96"/><path d="M0 80 Q40 76 120 80 V90 H0Z" fill="#6b4a30"/>';
+}
+function ilusCultivo(nombre, tipo, px) {
+  var cat = buscarCatalogoFlexible(nombre || ''), n = cat ? cat.n : '', col = (cat && COLOR_CULT[n]) || COLOR_TIPO[tipo] || '#4fb35a', body;
+  if (n === 'Lechuga') body = ilLechuga();
+  else if (n === 'Tomate') body = ilTomate();
+  else if (n === 'Cebolla larga') body = ilCebolla();
+  else if (n === 'Ajo') body = ilAjo();
+  else if (n === 'Maní') body = ilMani();
+  else if (tipo === 'fruto') body = ilFruto(col);
+  else if (tipo === 'raiz') body = ilRaiz(col);
+  else body = ilHoja(col);
+  var h = Math.round((px || 120) * .75);
+  return '<svg class="ilus" viewBox="0 0 120 90" width="' + (px || 120) + '" height="' + h + '" role="img" aria-label="Ilustración de ' + String(nombre || tipo).replace(/[<>&"]/g, '') + '" preserveAspectRatio="xMidYMax meet">' + body + '</svg>';
+}
+
+/* ============================================================
+   GUÍA DE ABONOS: recetas de referencia, plan por cultivo e
+   ilustraciones. Las cantidades son orientativas: ajústelas con
+   la observación de su suelo y sus plantas.
+   ============================================================ */
+var ABONOS = [
+  {
+    id: 'compost', n: 'Compost', tipo: 'solido', col: '#a8742f', aporta: ['Materia orgánica', 'N', 'P', 'K', 'Microbios'], dias: [75, 150],
+    resumen: 'La base de toda huerta: mejora la estructura del suelo y alimenta poco a poco.',
+    mat: ['Verdes (ricos en nitrógeno): restos vegetales de cocina, pasto fresco, malezas sin semilla, hojas de leguminosas, estiércol de res o gallinaza.', 'Marrones (ricos en carbono): hojarasca seca, paja, cartón sin tinta, aserrín, tallos secos picados.', 'Agua de lluvia o sin cloro.', 'Opcional: un puñado de compost viejo o tierra de bosque para "sembrar" microorganismos.'],
+    pasos: ['Escoja un sitio plano, con sombra parcial y buen drenaje. Arme una pila o cajón de 1 m × 1 m × 1 m: ese tamaño conserva el calor.', 'Pique todo en trozos de 2–5 cm; se descompone mucho más rápido.', 'Alterne capas con 2–3 partes de marrones por 1 de verdes (en volumen). Humedezca cada capa hasta que quede como una esponja bien escurrida.', 'Cubra con paja o un costal para mantener humedad y calor.', 'A los 3–5 días la pila debe calentarse (45–65 °C). Si no se calienta, falta humedad, nitrógeno o volumen.', 'Voltee cada 10–15 días. Al apretar un puñado debe salir apenas una gota. Olor a amoníaco: agregue marrones. Olor a podrido: está muy húmedo, voltee y agregue marrones secos.', 'Cuando deje de calentarse, déjelo madurar sin voltear 3–4 semanas más.'],
+    listo: 'Color oscuro, olor a tierra de bosque, textura suelta y sin materiales reconocibles. En clima frío tarda entre 3 y 5 meses.',
+    uso: ['Al preparar la cama: 3–5 kg por m², mezclado en los primeros 10–15 cm.', 'Al trasplantar: 1–2 puñados por hoyo.', 'Como cobertura: capa de 1–2 cm alrededor de las plantas cada 1–2 meses.'],
+    cuidado: ['No ponga carne, grasas, lácteos, heces de perros o gatos ni plantas enfermas.', 'Use compost bien maduro en hortalizas que se comen crudas y lávese las manos después de manipularlo.']
+  },
+  {
+    id: 'bocashi', n: 'Bocashi', tipo: 'solido', col: '#d9822b', aporta: ['N', 'P', 'K', 'Ca', 'Microbios'], dias: [12, 21],
+    resumen: 'Abono fermentado en 2–3 semanas: nutrientes disponibles más rápido que el compost.',
+    mat: ['3 partes de tierra buena de la misma finca, sin agroquímicos.', '3 partes de estiércol seco o gallinaza bien seca.', '3 partes de cascarilla de arroz, paja o broza picada.', '1 parte de carbón vegetal triturado.', '1 parte de salvado de arroz o afrecho de trigo.', 'Activador para una pila de unos 1.000 L (50 baldes de 20 L): 1 L de melaza (o 1 kg de panela) y 100 g de levadura de pan disueltos en unos 20 L de agua. Reduzca en proporción si hace menos.'],
+    pasos: ['Mezcle en seco sobre piso de cemento o plástico y bajo techo: tierra, estiércol, cascarilla, carbón y salvado.', 'Riegue el activador poco a poco mientras palea hasta lograr la prueba del puño: al apretar una mano de mezcla forma una bola que no gotea y se desmorona al soltarla. Si gotea, agregue material seco.', 'Arme una pila de máximo 50 cm de alto y cúbrala con costales (no con plástico cerrado).', 'Voltee 2 veces al día los primeros 3–4 días y luego 1 vez al día. La temperatura no debe pasar de 50 °C: si se calienta de más, extienda la pila y voltee.', 'Cuando la pila se enfríe a la temperatura ambiente (días 12–21, algo más en clima frío) está lista.', 'Seque a la sombra y guárdelo en costales en lugar fresco y seco.'],
+    listo: 'Temperatura igual a la del ambiente, color gris-café, olor a fermento (no a podrido) y hilos blancos de hongos beneficiosos.',
+    uso: ['50–100 g (un puñado) por planta o por hoyo, mezclado con tierra y no pegado al tallo.', '1–2 kg por m² al preparar las camas.', 'Repita cada 30–45 días en cultivos de ciclo largo, como el tomate.'],
+    cuidado: ['No lo aplique caliente ni todavía fermentando.', 'No lo ponga en contacto directo con la semilla ni con raíces nuevas.']
+  },
+  {
+    id: 'humus', n: 'Humus de lombriz', tipo: 'solido', col: '#7a5a3a', aporta: ['N', 'P', 'K', 'Microbios', 'Hormonas de crecimiento'], dias: [90, 120],
+    resumen: 'El más fino y suave: sirve en semilleros y trasplantes sin quemar las raíces.',
+    mat: ['Cajón o cama de madera (por ejemplo 1 m × 1 m × 40 cm) con techo, sombra y drenaje.', 'Lombriz roja californiana (Eisenia foetida): unas 1.000 (aprox. 1 kg) por m².', 'Alimento: estiércol de res o caballo envejecido 2–3 semanas y restos vegetales de cocina picados.', 'Lecho: hojarasca, cartón o paja humedecidos.'],
+    pasos: ['Prepare un lecho de 10–15 cm con hojarasca y estiércol envejecido; humedezca hasta que quede como esponja escurrida.', 'Ponga las lombrices encima; se entierran solas.', 'Alimente en capas de 3–5 cm cada 7–10 días, sobre lo que ya consumieron.', 'Mantenga la humedad y proteja del sol directo, de la lluvia y de hormigas, aves y gallinas.', 'A los 3–4 meses alimente solo un lado de la cama: las lombrices migran hacia la comida nueva y podrá sacar el humus del otro lado.'],
+    listo: 'Oscuro, granulado y con olor a tierra fresca, sin restos reconocibles.',
+    uso: ['1–2 puñados por planta al trasplantar, o 0,5–1 kg por m².', 'En semilleros: mezcle 1 parte de humus con 3 de tierra.'],
+    cuidado: ['Evite cítricos, cebolla, ajo, carne, grasas y lácteos en exceso.', 'No deje que se seque ni se encharque.']
+  },
+  {
+    id: 'biol', n: 'Biol (biofermento)', tipo: 'liquido', col: '#2f9c97', aporta: ['N', 'P', 'K', 'Hormonas vegetales'], dias: [30, 60],
+    resumen: 'Fertilizante líquido para riego y hojas, rico en nitrógeno y estimulantes de crecimiento.',
+    mat: ['Caneca plástica con tapa hermética (para esta receta, de 20 L).', 'Estiércol fresco de res: 5 kg.', 'Leche o suero: 0,5 L. Melaza: 0,5 L (o 500 g de panela).', 'Ceniza: 250 g (opcional).', 'Agua sin cloro hasta llenar 3/4 de la caneca.', 'Una manguera y una botella con agua para el sello de gases.'],
+    pasos: ['Disuelva en el agua la melaza y la leche; agregue el estiércol y mezcle hasta que no queden grumos.', 'Llene solo hasta 3/4 de la caneca para dejar espacio al gas.', 'Cierre herméticamente y conecte una manguera desde la tapa hasta una botella con agua: el gas sale, el aire no entra.', 'Deje fermentar a la sombra: 30–45 días en clima templado y hasta 60–90 en clima frío.', 'Cuando deje de burbujear y huela a fermento agridulce, filtre con tela y guárdelo en envase oscuro y tapado. Los sólidos van al compost.'],
+    listo: 'Sin burbujeo, color café claro verdoso y olor agridulce. Un olor muy fétido indica que la fermentación falló: descártelo.',
+    uso: ['Foliar: 1 L en 10–20 L de agua cada 15 días, en la mañana o al atardecer; en hortalizas de hoja use 1:20.', 'Al suelo: 1 L en 5–10 L de agua, cada 15–20 días.'],
+    cuidado: ['Use guantes y proteja los ojos.', 'No lo aplique sobre las hojas de hortalizas que se comen crudas en los últimos 15 días antes de cosechar.', 'Pruebe primero en pocas plantas.']
+  },
+  {
+    id: 'te', n: 'Té de compost', tipo: 'liquido', col: '#7fa23a', aporta: ['N', 'P', 'K', 'Microbios benéficos'], dias: [1, 2],
+    resumen: 'Microbios en agua para regar o asperjar el mismo día; da un empujón rápido a hojas y semilleros.',
+    mat: ['1 kg de compost o humus bien maduro.', '10 L de agua de lluvia o sin cloro (deje reposar el agua del grifo 24 h).', '1 cucharada de melaza (opcional, alimenta a los microbios).', 'Tela o costal para colar, balde, y una bomba de pecera si tiene (opcional).'],
+    pasos: ['Ponga el compost en la tela, amárrela como bolsa de té y sumérjala en el balde.', 'Agregue la melaza. Con bomba de pecera airee 24–36 h; sin bomba, remueva con fuerza varias veces al día durante 24–48 h.', 'Saque la bolsa, exprímala y use el líquido el mismo día.', 'El residuo de la bolsa sirve para fertilizar otra planta.'],
+    listo: 'Líquido color té claro y olor a tierra. Si huele mal, descártelo.',
+    uso: ['Riego al pie de las plantas, sin diluir o 1:2 con agua.', 'Foliar: diluya 1:5 y aplique en la mañana.', 'No lo guarde: úselo el mismo día.'],
+    cuidado: ['En hortalizas que se comen crudas aplíquelo al suelo y no a las hojas cerca de la cosecha.']
+  },
+  {
+    id: 'purin', n: 'Purín de ortiga o consuelda', tipo: 'liquido', col: '#2e9159', aporta: ['N (ortiga)', 'K (consuelda)', 'Minerales'], dias: [10, 20],
+    resumen: 'Fermento de plantas: la ortiga aporta nitrógeno y la consuelda potasio, además de fortalecer la planta.',
+    mat: ['1 kg de ortiga fresca (o 200 g seca) por cada 10 L de agua. Para potasio use hojas de consuelda en la misma proporción.', 'Balde plástico o de barro (no metálico), con tapa de malla o tela.', 'Agua de lluvia o sin cloro.'],
+    pasos: ['Corte las plantas antes de que echen semilla y póngalas picadas en el balde.', 'Cubra con el agua y tape con tela o malla: el fermento necesita aire.', 'Remueva todos los días; habrá espuma y olor fuerte.', 'Cuando ya no haga espuma (10–15 días en clima templado, hasta 20 en frío), cuele y guarde en botellas tapadas.'],
+    listo: 'Sin espuma, color oscuro y olor fuerte (no huele a flores).',
+    uso: ['Riego: 1 parte de purín en 10 de agua, cada 15 días.', 'Foliar: 1 parte en 20 de agua, para fortalecer la planta.', 'La consuelda es útil en tomate durante floración y cuajado.'],
+    cuidado: ['Use guantes: la ortiga pica incluso al fermentar.', 'No lo aplique puro; quema las hojas.']
+  },
+  {
+    id: 'ceniza', n: 'Ceniza de madera', tipo: 'mineral', col: '#7b8794', aporta: ['K', 'Ca', 'P (poco)'], dias: null,
+    resumen: 'Fuente rápida de potasio y calcio que sube el pH del suelo. Úsela con moderación.',
+    mat: ['Ceniza de leña o bagazo, completamente fría.', 'Solo de madera sin tratar: nunca de madera pintada, aglomerado, plásticos, carbón mineral ni papel de colores.'],
+    pasos: ['Guarde la ceniza fría y seca en un recipiente tapado: la lluvia le quita el potasio.', 'Tamice para quitar carbones.', 'Espolvoree una capa fina sobre el suelo o mézclela con compost y riegue.'],
+    listo: 'Se usa de inmediato.',
+    uso: ['1–2 puñados por m² (100–200 g), como máximo cada 2–3 meses.', 'En el compost: una capa fina cada 20–30 cm.', 'Útil en tomate (cuajado), ajo y cebolla (formación del bulbo).'],
+    cuidado: ['No la use en suelos alcalinos (pH superior a 7) ni en fresa o papa, que prefieren suelos más ácidos.', 'Use mascarilla al manipularla y no la ponga pegada al tallo.']
+  },
+  {
+    id: 'calcio', n: 'Calcio: cáscara de huevo, cal o yeso', tipo: 'mineral', col: '#c9b27a', aporta: ['Ca', 'Mg (dolomita)', 'S (yeso)'], dias: null,
+    resumen: 'Previene la pudrición apical del tomate y ayuda a llenar las vainas del maní.',
+    mat: ['Cáscaras de huevo lavadas y secas.', 'O cal dolomita / yeso agrícola, que se compran en las agropecuarias.'],
+    pasos: ['Lave las cáscaras, séquelas al sol o en horno suave y muélalas hasta dejarlas como polvo fino (licuadora o molino).', 'Mezcle el polvo con compost o con la tierra del hoyo.', 'Para una respuesta más rápida use yeso o cal dolomita, según el pH del suelo.'],
+    listo: 'La cáscara molida actúa lento (meses); el yeso actúa más rápido.',
+    uso: ['Cáscara molida: 1–2 cucharadas por planta al trasplantar y otra en floración.', 'Yeso agrícola: 100–200 g por m² al inicio de la floración del maní, porque las vainas absorben el calcio directamente del suelo.', 'Cal dolomita: solo si el suelo es ácido (pH menor de 5,5), 100–200 g por m² incorporada 2–3 semanas antes de sembrar.'],
+    cuidado: ['La cáscara tarda meses en disolverse: no corrige una deficiencia ya visible.', 'La cal puede subir demasiado el pH: mida el pH antes de usarla.']
+  }
+];
+var TIPOS_ABONO = { solido: 'Sólidos', liquido: 'Líquidos', mineral: 'Minerales' };
+var REGLAS_ABONO = [
+  'Mida el pH del suelo (tiras o medidor económico): la mayoría de las hortalizas rinde mejor entre 6,0 y 7,0.',
+  'No use estiércol fresco directamente en hortalizas: compóstelo o fermente antes. Si lo aplica sin compostar, espere al menos 90–120 días antes de cosechar lo que se come.',
+  'Aplique los abonos secos a unos 5–10 cm del tallo, no pegados, y riegue después.',
+  'Lea las plantas: hojas pálidas y viejas amarillas suelen pedir nitrógeno; hojas moradas, fósforo; bordes secos, potasio; fondo negro en los frutos, calcio o riego irregular.',
+  'Más no es mejor: el exceso de nitrógeno da plantas blandas, atrae plagas y retrasa frutos y bulbos.'
+];
+
+/* Plan de abonado por cultivo: [día desde, día hasta (desde la siembra), id del abono, indicación] */
+var ABONO_CULT = {
+  'Tomate': [
+    [-14, 0, 'compost', 'Incorpore 3–5 kg por m² en la cama y 1–2 puñados en cada hoyo.'],
+    [0, 12, 'humus', 'Un puñado por hoyo mejora el prendimiento sin quemar raíces.'],
+    [10, 45, 'biol', 'Foliar 1:20 cada 15 días durante el crecimiento del follaje.'],
+    [15, 50, 'bocashi', '50–100 g por planta, a unos 10 cm del tallo, cada 30–45 días.'],
+    [30, 90, 'purin', 'Consuelda en floración y cuajado: riego 1:10 cada 15 días.'],
+    [30, 110, 'calcio', 'Cáscara molida al pie, para prevenir la pudrición apical.'],
+    [40, 110, 'ceniza', 'Un puñado por m² en floración (potasio). No más de una vez cada 2–3 meses.']
+  ],
+  'Lechuga': [
+    [-14, 0, 'compost', '3–4 kg por m² en la cama, bien maduro.'],
+    [0, 12, 'humus', 'En el hoyo de trasplante; es el abono más suave.'],
+    [10, 55, 'te', 'Riegue con té de compost cada 7–10 días para hojas tiernas.'],
+    [12, 45, 'purin', 'Ortiga 1:10 cada 15 días como aporte de nitrógeno. Evite estiércol fresco.']
+  ],
+  'Cebolla larga': [
+    [-14, 0, 'compost', '3–4 kg por m² en el surco antes de sembrar.'],
+    [15, 75, 'bocashi', '50–100 g por metro lineal, a un lado de la hilera, cada 30 días.'],
+    [15, 70, 'purin', 'Ortiga 1:10 cada 15–20 días para el follaje verde.'],
+    [45, 110, 'ceniza', 'Una capa fina entre surcos, cuando empiece a engrosar el tallo.']
+  ],
+  'Ajo': [
+    [-14, 0, 'compost', '3–4 kg por m² bien maduro; el estiércol fresco favorece enfermedades.'],
+    [20, 60, 'purin', 'Ortiga 1:10 cada 15–20 días: el nitrógeno sirve solo al comienzo.'],
+    [30, 70, 'biol', 'Foliar 1:20, una o dos aplicaciones en el crecimiento del follaje.'],
+    [60, 130, 'ceniza', 'Potasio durante la formación del bulbo. Reduzca el nitrógeno desde el día 60.']
+  ],
+  'Maní': [
+    [-14, 0, 'compost', 'Cantidad moderada (2–3 kg por m²): como leguminosa fija su propio nitrógeno.'],
+    [0, 20, 'bocashi', 'Poco y lejos de la semilla; aporta fósforo y microbios.'],
+    [30, 70, 'calcio', 'Yeso agrícola o cal en el inicio de floración, para llenar las vainas.'],
+    [35, 100, 'humus', 'Un puñado por planta mantiene el suelo suelto y vivo.']
+  ]
+};
+var ABONO_TIPO = {
+  hoja: [[-14, 0, 'compost', '3–4 kg por m² antes de sembrar.'], [0, 15, 'humus', 'En el hoyo, para un prendimiento suave.'], [10, 60, 'te', 'Riego con té de compost cada 7–10 días.'], [12, 50, 'purin', 'Ortiga 1:10 cada 15 días como nitrógeno.']],
+  fruto: [[-14, 0, 'compost', '3–5 kg por m² antes de sembrar.'], [10, 60, 'biol', 'Foliar 1:20 cada 15 días.'], [15, 70, 'bocashi', '50–100 g por planta cada 30–45 días.'], [35, 110, 'ceniza', 'Potasio en floración y llenado de frutos.']],
+  raiz: [[-14, 0, 'compost', '3–4 kg por m² bien maduro; evite estiércol fresco.'], [20, 70, 'purin', 'Nitrógeno moderado al comienzo; luego deténgase.'], [50, 120, 'ceniza', 'Potasio para el engrosamiento de la raíz o bulbo.']]
+};
+function abonoPorId(id) { for (var i = 0; i < ABONOS.length; i++) if (ABONOS[i].id === id) return ABONOS[i]; return null; }
+/* Sugerencias de abono para un cultivo según su edad (días desde la siembra). */
+function abonosParaCultivo(c, vida) {
+  var cat = catalogoDe(c), lista = (cat && ABONO_CULT[cat.n]) || ABONO_TIPO[c.tipo] || [], ahora = [], pronto = [];
+  lista.forEach(function (x) {
+    var it = { a: abonoPorId(x[2]), nota: x[3], d1: x[0], d2: x[1] };
+    if (!it.a) return;
+    if (vida >= x[0] && vida <= x[1]) ahora.push(it);
+    else if (vida < x[0] && x[0] - vida <= 21) { it.en = x[0] - vida; pronto.push(it); }
+  });
+  return { ahora: ahora, pronto: pronto, especifica: !!(cat && ABONO_CULT[cat.n]) };
+}
+
+/* ---------- Ilustraciones de abonos ---------- */
+function ilAbono(id) {
+  var s = '';
+  if (id === 'compost') {
+    s = '<path d="M14 76 Q22 34 60 28 Q98 34 106 76Z" fill="#6d4a2b"/><path d="M20 66 Q60 54 100 66 L104 74 L16 74Z" fill="#5fa04a"/><path d="M26 54 Q60 42 94 54 L98 62 Q60 52 22 62Z" fill="#8d6a3f"/><path d="M36 42 Q60 34 84 42 L88 49 Q60 42 32 49Z" fill="#5fa04a"/>' +
+      '<path d="M50 24 q-4 -6 0 -12 M62 22 q-4 -6 0 -12 M74 24 q-4 -6 0 -12" stroke="#b9c2c7" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/><rect x="8" y="76" width="104" height="6" rx="3" fill="#4a3320"/>';
+  } else if (id === 'bocashi') {
+    s = '<path d="M30 28 L74 28 L80 78 L24 78Z" fill="#e5d3a8" stroke="#b79a5b" stroke-width="2"/><path d="M34 28 L70 28 L66 22 L38 22Z" fill="#d3bd88"/><circle cx="52" cy="52" r="11" fill="#d9822b"/><path d="M52 60 V44 M52 52 q8 -2 10 -9 M52 54 q-8 -2 -10 -9" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<path d="M78 78 Q92 56 108 78Z" fill="#8c5a34"/><circle cx="90" cy="72" r="1.8" fill="#e5d3a8"/><circle cx="98" cy="75" r="1.4" fill="#e5d3a8"/><circle cx="86" cy="76" r="1.3" fill="#e5d3a8"/><rect x="14" y="78" width="98" height="5" rx="2.5" fill="#4a3320"/>';
+  } else if (id === 'humus') {
+    s = '<path d="M16 40 H104 L98 78 H22Z" fill="#b9873f" stroke="#8a6128" stroke-width="2"/><path d="M20 44 H100 L96 56 H24Z" fill="#4a3320"/><path d="M22 58 H98 L96 74 H24Z" fill="#6b4a30"/>' +
+      '<path d="M30 50 q6 -5 12 0 t12 0 M60 64 q6 -5 12 0 t10 0 M34 68 q5 -4 10 0 t10 0" stroke="#e58f9a" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M16 40 H104" stroke="#8a6128" stroke-width="3"/>';
+  } else if (id === 'biol') {
+    s = '<path d="M20 30 H66 V80 H20Z" fill="#2f9c97" stroke="#1f7571" stroke-width="2"/><rect x="16" y="24" width="54" height="10" rx="4" fill="#27827e"/><rect x="26" y="48" width="34" height="14" rx="3" fill="#e9f6f5" opacity=".75"/>' +
+      '<path d="M43 24 V12 Q43 8 48 8 H88 Q92 8 92 14 V46" stroke="#4d5b66" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M82 48 H102 V80 H82Z" fill="#cfe9f4" stroke="#7fb6cd" stroke-width="2"/><rect x="84" y="62" width="16" height="16" fill="#8ec9e0"/>' +
+      '<circle cx="90" cy="58" r="2" fill="#fff"/><circle cx="96" cy="53" r="1.6" fill="#fff"/><circle cx="92" cy="49" r="1.2" fill="#fff"/>';
+  } else if (id === 'te') {
+    s = '<path d="M30 36 H90 L84 80 H36Z" fill="#9a7b4f" stroke="#6e5530" stroke-width="2"/><path d="M33 46 H87 L84 78 H36Z" fill="#b99a5a" opacity=".9"/><path d="M60 14 V46" stroke="#e8e0cf" stroke-width="2"/>' +
+      '<rect x="50" y="38" width="20" height="16" rx="3" fill="#e8e0cf" stroke="#b79a5b" stroke-width="1.5"/><path d="M60 38 V30 l6 -6" stroke="#e8e0cf" stroke-width="2" fill="none"/><circle cx="46" cy="64" r="2" fill="#e6d3a3"/><circle cx="72" cy="58" r="2.4" fill="#e6d3a3"/><circle cx="64" cy="70" r="1.8" fill="#e6d3a3"/>';
+  } else if (id === 'purin') {
+    s = '<path d="M32 40 H88 L84 80 H36Z" fill="#8a5a34" stroke="#5b3a20" stroke-width="2"/><rect x="28" y="36" width="64" height="8" rx="3" fill="#6e4528"/>' +
+      '<path d="M50 38 C44 24 40 18 36 10 M60 38 C60 24 62 16 66 6 M70 38 C76 26 82 20 90 16" stroke="#2e9159" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="36" cy="14" rx="7" ry="3.5" transform="rotate(50 36 14)" fill="#46b06f"/><ellipse cx="66" cy="10" rx="7" ry="3.5" transform="rotate(-60 66 10)" fill="#46b06f"/><ellipse cx="88" cy="18" rx="7" ry="3.5" transform="rotate(-30 88 18)" fill="#46b06f"/><path d="M40 62 q5 -4 10 0 t10 0 t10 0" stroke="#5fa04a" stroke-width="2.5" fill="none"/>';
+  } else if (id === 'ceniza') {
+    s = '<path d="M12 78 Q36 40 60 42 Q86 44 108 78Z" fill="#8b95a1"/><path d="M26 78 Q46 56 62 56 Q82 56 98 78Z" fill="#a9b2bc"/><circle cx="42" cy="68" r="1.8" fill="#6b7580"/><circle cx="76" cy="66" r="2.2" fill="#6b7580"/><circle cx="60" cy="72" r="1.5" fill="#6b7580"/>' +
+      '<path d="M60 8 C70 18 74 26 66 34 C70 24 62 22 60 16 C58 24 52 24 54 34 C46 26 52 16 60 8Z" fill="#f08a24"/><path d="M60 20 C64 26 64 30 60 33 C56 30 56 26 60 20Z" fill="#f6d04a"/>';
+  } else {
+    s = '<path d="M14 52 C14 34 40 34 40 52 L36 48 L32 54 L28 48 L24 54 L20 48Z" fill="#f4efe6" stroke="#cfc4ae" stroke-width="2"/><path d="M44 62 C44 44 70 44 70 62 L66 58 L62 64 L58 58 L54 64 L50 58Z" fill="#f4efe6" stroke="#cfc4ae" stroke-width="2"/>' +
+      '<path d="M66 80 Q86 46 110 80Z" fill="#f1ead5"/><path d="M72 80 Q88 58 104 80Z" fill="#fbf7ea"/><circle cx="92" cy="73" r="1.5" fill="#dccf9f"/><circle cx="84" cy="76" r="1.3" fill="#dccf9f"/><rect x="8" y="80" width="104" height="5" rx="2.5" fill="#6b4a30"/>';
+  }
+  return s;
+}
+function ilusAbono(id, px) {
+  var a = abonoPorId(id), h = Math.round((px || 120) * .75);
+  return '<svg class="ilus" viewBox="0 0 120 90" width="' + (px || 120) + '" height="' + h + '" role="img" aria-label="Ilustración de ' + (a ? a.n.replace(/[<>&"]/g, '') : 'abono') + '" preserveAspectRatio="xMidYMax meet">' + ilAbono(id) + '</svg>';
+}
+
+/* ============================================================
+   VISTAS VISUALES: ciclo lunar, calendario, abonos y registro
+   ============================================================ */
+var TIPOS_FAV = ['hoja', 'fruto', 'raiz'];
+var EJEMPLO_TIPO = { hoja: 'Lechuga', fruto: 'Tomate', raiz: 'Zanahoria' };
+var NOMBRE_TIPO_PL = { hoja: 'Hojas', fruto: 'Frutos', raiz: 'Raíces' };
+
+function mostrarSheet(html) {
+  if ($('#overlay').hidden) abrirSheet(html); else { $('#sheet').innerHTML = html; $('#sheet').scrollTop = 0; }
+}
+function barrasFav(idx) {
+  return '<span class="fv-row" aria-hidden="true">' + TIPOS_FAV.map(function (t) { return '<i class="fv fv-' + t + (esFavorable(t, idx) ? ' on' : '') + '"></i>'; }).join('') + '</span>';
+}
+function leyendaFav() {
+  return '<div class="leyenda"><span><i class="sq fv-hoja"></i>Hojas</span><span><i class="sq fv-fruto"></i>Frutos</span><span><i class="sq fv-raiz"></i>Raíces</span><span class="muted">Barra encendida: fase favorable para sembrar ese tipo</span></div>';
+}
+
+/* ---------- Ciclo lunar (8 fases) ---------- */
+function cicloHTML(idxAct) {
+  return '<div class="ciclo" role="group" aria-label="Fases de la luna">' + FASES.map(function (F, i) {
+    return '<button type="button" class="fase" data-a="fase" data-i="' + i + '" aria-pressed="' + (i === idxAct) + '" aria-label="' + F.n + '. ' + F.d + '">' +
+      '<span class="fase-m">' + lunaSVG(i * 45, 50, 'f' + i, false) + '</span><b>' + F.n + '</b>' + barrasFav(i) + '</button>';
+  }).join('') + '</div>';
+}
+function tileTipo(t, idx) {
+  var fav = esFavorable(t, idx), cc = COLOR_CULT[EJEMPLO_TIPO[t]];
+  return '<div class="tile' + (fav ? ' on' : '') + '" style="--cc:' + cc + '"><span class="tile-i">' + ilusCultivo(EJEMPLO_TIPO[t], t, 76) + '</span><b>' + NOMBRE_TIPO_PL[t] + '</b>' +
+    '<span class="chip ' + (fav ? 'ok' : '') + '">' + (fav ? 'Favorable' : 'Fuera de ventana') + '</span></div>';
+}
+function abrirFase(i) {
+  var F = FASES[i], q = i % 2 === 0 ? i / 2 : -1, prox = q >= 0 ? proximaFase(new Date(), q * 90) : null;
+  var h = '<div class="night fase-ban">' + lunaSVG(i * 45, 112, 'fs', true) + '<div><p class="eyebrow">Fase lunar</p><h2>' + F.n + '</h2><p class="fase-d">' + F.d + '</p>' +
+    (prox ? '<p class="mono fase-p">Próxima: ' + fechaMedia(fmtISO(prox)) + ' · ' + hora(prox) + '</p>' : '<p class="mono fase-p">Fase intermedia, dura unos 3–4 días</p>') + '</div></div>' +
+    '<p class="hint" style="margin-top:14px">' + CONSEJO_FASE[i] + '</p>' +
+    '<h3 class="sub-h eyebrow">Siembra favorable en esta fase</h3><div class="tiles">' + TIPOS_FAV.map(function (t) { return tileTipo(t, i); }).join('') + '</div>' +
+    '<h3 class="sub-h eyebrow">Qué conviene hacer</h3><div class="stack" style="gap:14px">' + actividades(i).map(actHTML).join('') + '</div>' +
+    '<div class="sheet-actions"><button type="button" class="btn primary" data-a="cerrar">Cerrar</button></div>';
+  mostrarSheet(h);
+}
+
+/* ---------- Calendario ---------- */
+function vistaCalendario() {
+  var y = S.mes.y, m = S.mes.m, hoy = hoyISO(), anioHoy = +hoy.slice(0, 4);
+  var off = (new Date(y, m, 1).getDay() + 6) % 7, dim = new Date(y, m + 1, 0).getDate(), marcas = marcasMes(y, m);
+  var opM = '', opA = '', i, sel = S.sel, fs = faseDelDia(sel), Fs = FASES[fs.idx], prs = principalDelDia(sel), evs = eventosDelDia(sel);
+  MESES.forEach(function (n, k) { opM += '<option value="' + k + '"' + (k === m ? ' selected' : '') + '>' + cap(n) + '</option>'; });
+  for (i = anioHoy - 3; i <= anioHoy + 6; i++) opA += '<option value="' + i + '"' + (i === y ? ' selected' : '') + '>' + i + '</option>';
+
+  var h = '<section class="card ciclo-card"><div class="card-h"><h2>Ciclo lunar</h2><span class="muted">Toque una fase para ver qué conviene</span></div>' + cicloHTML(fs.idx) + leyendaFav() + '</section>';
+  h += '<div class="cal-layout"><section class="card"><div class="cal-nav">' +
+    '<button class="btn sm" type="button" data-a="mes-ant" aria-label="Mes anterior">' + ic('izq') + '</button>' +
+    '<label class="sr" for="cal-mes">Mes</label><select id="cal-mes">' + opM + '</select>' +
+    '<label class="sr" for="cal-anio">Año</label><select id="cal-anio">' + opA + '</select>' +
+    '<button class="btn sm" type="button" data-a="mes-sig" aria-label="Mes siguiente">' + ic('der') + '</button><span class="sp"></span>' +
+    '<button class="btn sm" type="button" data-a="mes-hoy">Hoy</button></div><div class="cal-grid">';
+  ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].forEach(function (d) { h += '<div class="cal-wd">' + d + '</div>'; });
+  for (i = 0; i < off; i++) h += '<span class="day fuera" aria-hidden="true"></span>';
+  for (i = 1; i <= dim; i++) {
+    var iso = y + '-' + pad(m + 1) + '-' + pad(i), fi = faseDelDia(iso), pr = principalDelDia(iso), q = pr === -1 ? -1 : pr.q;
+    var dots = (marcas[iso] || []).slice(0, 4).map(function (k) { return '<i style="--c:var(--ev-' + k + ')"></i>'; }).join('');
+    h += '<button type="button" class="day q' + (q >= 0 ? q : 'x') + (iso === hoy ? ' hoy' : '') + '" data-a="dia" data-d="' + iso + '" aria-pressed="' + (iso === S.sel) + '" aria-label="' + fechaLarga(iso) + ', ' + FASES[fi.idx].n + '">' +
+      '<span class="n">' + i + '</span>' + (q >= 0 ? '<span class="q">' + ['LN', 'CC', 'LL', 'CM'][q] + '</span>' : '') + lunaSVG(fi.psi, 28, '', false) + barrasFav(fi.idx) + '<span class="dots">' + dots + '</span></button>';
+  }
+  h += '</div>' + leyendaFav() + '<div class="leyenda"><span><b>LN</b> Luna nueva</span><span><b>CC</b> Cuarto creciente</span><span><b>LL</b> Luna llena</span><span><b>CM</b> Cuarto menguante</span></div>' +
+    '<div class="leyenda"><span><i style="--c:var(--ev-siembra)"></i>Siembra</span><span><i style="--c:var(--ev-riego)"></i>Riego</span><span><i style="--c:var(--ev-abono)"></i>Abono</span><span><i style="--c:var(--ev-plagas)"></i>Plagas</span><span><i style="--c:var(--ev-cosecha)"></i>Cosecha</span></div></section>';
+
+  h += '<section class="card dia-card"><div class="night dia-ban">' + lunaSVG(fs.psi, 96, 'd', true) + '<div><p class="eyebrow">' + (sel === hoy ? 'Hoy' : 'Día seleccionado') + '</p><h2>' + fechaLarga(sel) + '</h2>' +
+    '<p class="fase-d">' + Fs.n + ' · ' + Math.round(fs.illum * 100) + ' % iluminada</p>' +
+    (prs !== -1 && prs.hora ? '<p class="mono fase-p">' + PRINCIPALES[prs.q] + ' a las ' + hora(prs.hora) + '</p>' : '') + '</div></div>' +
+    '<p class="hint" style="margin-top:12px">' + CONSEJO_FASE[fs.idx] + '</p>' +
+    '<h3 class="sub-h eyebrow">Sembrar este día</h3><div class="tiles">' + TIPOS_FAV.map(function (t) { return tileTipo(t, fs.idx); }).join('') + '</div>' +
+    '<h3 class="sub-h eyebrow">Qué conviene hacer</h3><div class="stack" style="gap:14px">' + actividades(fs.idx).map(actHTML).join('') + '</div>' +
+    '<h3 class="sub-h eyebrow">Su registro de este día</h3>';
+  if (!evs.length) h += '<p class="hint">Sin actividades registradas.</p>';
+  else h += '<ul class="mini mini-c">' + evs.map(function (x) {
+    var det = x.e ? (x.e.cantidad ? num(x.e.cantidad, 2) + ' ' + x.e.unidad : '') + (x.e.via === 'lluvia' ? 'Llovió' : '') + (x.e.nota ? (x.e.cantidad || x.e.via ? ' · ' : '') + esc(x.e.nota) : '') : '';
+    return '<li><span class="thumb s" style="--cc:' + colorCultivo(x.c) + '">' + ilusCultivo(x.c.nombre, x.c.tipo, 40) + '</span><span class="grow"><b>' + EV[x.k].l + '</b> · ' + esc(x.c.nombre) + (det ? '<br><span class="muted">' + det + '</span>' : '') + '</span>' + icoEv(x.k) + '</li>';
+  }).join('') + '</ul>';
+  h += '<div class="sheet-actions" style="justify-content:flex-start"><button class="btn primary" type="button" data-a="nuevo" data-fecha="' + sel + '">' + ic('mas') + 'Sembrar este día</button></div></section></div>';
+  return h;
+}
+
+/* ---------- Abonos ---------- */
+function chipAporta(a) { return a.aporta.map(function (x) { return '<span class="chip">' + esc(x) + '</span>'; }).join(''); }
+function planCultivo(c) {
+  var hoy = hoyISO(), k = estadoCosecha(c, hoy), sug = abonosParaCultivo(c, k.vida), cc = colorCultivo(c);
+  var h = '<article class="plan-c" style="--cc:' + cc + '"><div class="plan-h"><span class="thumb" style="--cc:' + cc + '">' + ilusCultivo(c.nombre, c.tipo, 52) + '</span><div><b>' + esc(c.nombre) + '</b><span>' + (k.vida < 0 ? 'Siembra en ' + plural(-k.vida, 'día', 'días') : 'Día ' + k.vida + ' desde la siembra') + '</span></div></div>';
+  if (!sug.ahora.length && !sug.pronto.length) h += '<p class="hint">No hay abonos programados para las próximas 3 semanas. Revise las recetas más abajo.</p>';
+  h += sug.ahora.map(function (x) { return itemPlan(x, 'Ahora'); }).join('') + sug.pronto.map(function (x) { return itemPlan(x, 'En ' + plural(x.en, 'día', 'días')); }).join('');
+  return h + '</article>';
+}
+function itemPlan(x, etiqueta) {
+  return '<button type="button" class="plan-i" data-a="abono" data-id="' + x.a.id + '" style="--c:' + x.a.col + '"><span class="plan-m">' + ilusAbono(x.a.id, 48) + '</span><span class="plan-t"><b>' + esc(x.a.n) + '</b><span>' + esc(x.nota) + '</span></span><span class="chip ' + (etiqueta === 'Ahora' ? 'ok' : 'soon') + '">' + etiqueta + '</span></button>';
+}
+function vistaAbonos() {
+  var act = S.cultivos.filter(function (c) { return c.estado === 'activo'; }), f = S.af || 'todos';
+  var h = '<section class="abo-hero"><span class="abo-i">' + ilusAbono('compost', 132) + '</span><div><p class="eyebrow">Guía de abonos</p><h1>Prepare su propio abono</h1><p>Recetas de referencia para alimentar el suelo y las plantas con lo que produce la finca.</p></div></section>';
+  h += '<section class="card"><div class="card-h"><h2>Sugeridos para sus cultivos</h2><span class="muted">según la edad de cada uno hoy</span></div>';
+  if (!act.length) h += '<div class="empty"><b>Sin cultivos activos</b><p>Agregue sus cultivos para ver qué abono toca en cada etapa.</p><button class="btn primary" type="button" data-a="tab" data-v="huerta">Ir a Mi huerta</button></div>';
+  else h += '<div class="plan">' + act.map(planCultivo).join('') + '</div>';
+  h += '</section>';
+  var filtros = [['todos', 'Todos'], ['solido', 'Sólidos'], ['liquido', 'Líquidos'], ['mineral', 'Minerales']];
+  h += '<div class="barra"><h2 class="h2">Recetas</h2><div class="chips" role="group" aria-label="Tipo de abono">' + filtros.map(function (x) {
+    return '<button type="button" class="fchip" data-a="afiltro" data-f="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + '</button>';
+  }).join('') + '</div></div><div class="abonos">' + ABONOS.filter(function (a) { return f === 'todos' || a.tipo === f; }).map(function (a) {
+    return '<article class="abo" style="--c:' + a.col + '"><div class="abo-ban">' + ilusAbono(a.id, 112) + '<span class="chip tp">' + TIPOS_ABONO[a.tipo].replace(/s$/, '') + '</span></div><div class="abo-b"><h3>' + esc(a.n) + '</h3><p>' + esc(a.resumen) + '</p>' +
+      '<div class="chips-w">' + chipAporta(a) + '</div><p class="abo-t mono">' + (a.dias ? 'Listo en ' + (a.dias[0] === a.dias[1] ? a.dias[0] : a.dias[0] + '–' + a.dias[1]) + ' días' : 'Uso inmediato') + '</p>' +
+      '<button class="btn sm primary" type="button" data-a="abono" data-id="' + a.id + '">Ver preparación</button></div></article>';
+  }).join('') + '</div>';
+  h += '<section class="card"><div class="card-h"><h2>Reglas de oro</h2></div><ul class="gl" style="--cc:var(--accent)">' + REGLAS_ABONO.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></section>';
+  return h;
+}
+function abrirAbono(id) {
+  var a = abonoPorId(id); if (!a) return;
+  var hoy = hoyISO(), usan = [];
+  S.cultivos.forEach(function (c) {
+    if (c.estado !== 'activo') return;
+    var cat = catalogoDe(c), lista = (cat && ABONO_CULT[cat.n]) || ABONO_TIPO[c.tipo] || [];
+    if (lista.some(function (x) { return x[2] === id; })) usan.push(c);
+  });
+  var h = '<div class="abo-sh" style="--c:' + a.col + '"><div class="abo-sh-h">' + ilusAbono(a.id, 112) + '<div><span class="chip tp">' + TIPOS_ABONO[a.tipo].replace(/s$/, '') + '</span><h2>' + esc(a.n) + '</h2></div></div>' +
+    '<p class="hint" style="margin-top:12px">' + esc(a.resumen) + '</p><div class="chips-w" style="margin-top:10px">' + chipAporta(a) + '</div>';
+  if (a.dias) h += '<p class="g-luna" style="--gl:var(--f-durante)">' + ic('calendario', 16) + '<span>Si lo empieza hoy, estará listo entre el <b>' + fechaMedia(sumarDias(hoy, a.dias[0])) + '</b> y el <b>' + fechaMedia(sumarDias(hoy, a.dias[1])) + '</b>.</span></p>';
+  h += '<h3 class="g-t">Materiales</h3>' + lista(a.mat) + '<h3 class="g-t">Preparación paso a paso</h3><ol class="pasos">' + a.pasos.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>' +
+    '<h3 class="g-t">Cómo saber que está listo</h3><p>' + esc(a.listo) + '</p>' +
+    '<h3 class="g-t">Cómo y cuánto aplicar</h3>' + lista(a.uso) + '<h3 class="g-t">Precauciones</h3><ul class="gl gl-w">' + a.cuidado.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+  if (usan.length) h += '<h3 class="g-t">Sus cultivos que lo usan</h3><div class="chips-w">' + usan.map(function (c) { return '<span class="chip t" style="--c:' + colorCultivo(c) + '"><i></i>' + esc(c.nombre) + '</span>'; }).join('') + '</div>';
+  h += '<p class="hint" style="margin-top:12px">Cantidades de referencia: ajústelas observando su suelo, el clima y la respuesta de las plantas.</p>' +
+    '<div class="sheet-actions"><button type="button" class="btn primary" data-a="cerrar">Cerrar</button></div></div>';
+  mostrarSheet(h);
+}
+
+/* ---------- Registro ---------- */
+function barras(items) {
+  var max = Math.max.apply(null, items.map(function (i) { return i.v; })) || 1;
+  return '<ul class="bars">' + items.map(function (i) {
+    return '<li class="bar-row" title="' + esc(i.n) + ': ' + i.txt + '"><span class="bar-l">' + (i.th ? '<span class="thumb s" style="--cc:' + i.c + '">' + i.th + '</span>' : '<i style="--c:' + i.c + '"></i>') + esc(i.n) + '</span><span class="bar-t"><span class="bar' + (i.v ? '' : ' cero') + '" style="width:' + (i.v / max * 100) + '%;--c:' + i.c + '"></span></span><span class="bar-v">' + i.txt + '</span></li>';
+  }).join('') + '</ul>';
+}
+function statTile(c, icono, val, label) { return '<div class="stat" style="--c:' + c + '"><span class="ico">' + ic(icono) + '</span><b>' + val + '</b><span>' + label + '</span></div>'; }
+function calorActividad(hoy, dias) {
+  var cuenta = {}, i, diasAct = 0, celdas = '';
+  S.cultivos.forEach(function (c) { c.eventos.forEach(function (e) { if (e.tipo !== 'nota') cuenta[e.fecha] = (cuenta[e.fecha] || 0) + 1; }); });
+  for (i = dias - 1; i >= 0; i--) {
+    var iso = sumarDias(hoy, -i), n = cuenta[iso] || 0, lv = n === 0 ? 0 : n === 1 ? 1 : n <= 3 ? 2 : n <= 6 ? 3 : 4;
+    if (n) diasAct++;
+    celdas += '<span class="hc l' + lv + '" title="' + fechaCorta(iso) + ': ' + plural(n, 'actividad', 'actividades') + '"></span>';
+  }
+  return { html: celdas, dias: diasAct };
+}
+function vistaRegistro() {
+  var hoy = hoyISO(), dr = diasRespaldo(), cos = resumenCosecha(S.cultivos), act = resumenActividad(S.cultivos, hoy, 30), tot = 0, kg = 0, totEv = 0;
+  Object.keys(act).forEach(function (k) { tot += act[k]; });
+  cos.forEach(function (x) { kg += x.kg; });
+  S.cultivos.forEach(function (c) { totEv += c.eventos.filter(function (e) { return e.tipo !== 'nota'; }).length; });
+  var activos = S.cultivos.filter(function (c) { return c.estado === 'activo'; }).length, heat = calorActividad(hoy, 30);
+  var est = { nube: 'Sincronizado con su cuenta', local: 'Solo en este dispositivo', conectando: 'Conectando…', error: 'Sin sincronizar' }[S.sync];
+  var expl = S.sync === 'nube' ? 'Sus cultivos se guardan en su cuenta de Claude y aparecen igual en el teléfono y en el computador. Solo usted puede verlos.'
+    : S.sync === 'conectando' ? 'Verificando la conexión con su cuenta. Mientras tanto puede trabajar con normalidad.'
+    : 'Sus cultivos se guardan únicamente en este navegador. ' + (S.motivo || 'Descargue respaldos con frecuencia para no perderlos.');
+
+  var h = '<section class="stats" aria-label="Resumen">' + statTile('var(--accent)', 'huerta', activos, 'Cultivos activos') + statTile('var(--ev-riego)', 'check', totEv, 'Actividades registradas') +
+    statTile('var(--ev-cosecha)', 'cosecha', num(kg, 1) + '<small> kg</small>', 'Cosechados') + statTile('var(--ev-abono)', 'calendario', heat.dias + '<small> / 30</small>', 'Días con actividad') + '</section>';
+
+  h += '<div class="g2"><section class="card"><div class="card-h"><h2>Actividad de los últimos 30 días</h2><span class="muted">' + plural(tot, 'registro', 'registros') + '</span></div>' +
+    '<div class="heat" role="img" aria-label="Actividad diaria de los últimos 30 días">' + heat.html + '</div><div class="heat-l"><span>Hace 30 días</span><span class="heat-k">menos<i class="hc l0"></i><i class="hc l1"></i><i class="hc l2"></i><i class="hc l3"></i><i class="hc l4"></i>más</span><span>Hoy</span></div>' +
+    (tot ? barras(['riego', 'abono', 'plagas', 'poda', 'cosecha'].map(function (k) { return { n: EV[k].l, v: act[k], txt: String(act[k]), c: 'var(--ev-' + k + ')' }; })) : '<p class="hint">Los riegos, abonos, podas y cosechas que registre aparecerán resumidos aquí.</p>') + '</section>' +
+    '<section class="card"><div class="card-h"><h2>Cosecha por cultivo</h2><span class="muted">kg registrados</span></div>' +
+    (cos.length ? barras(cos.slice(0, 8).map(function (x) {
+      var c = S.cultivos.filter(function (z) { return z.nombre === x.n; })[0], cc = c ? colorCultivo(c) : '#e87ba4';
+      return { n: x.n, v: x.kg, txt: num(x.kg, 2) + ' kg', c: cc, th: c ? ilusCultivo(c.nombre, c.tipo, 40) : '' };
+    })) + '<p class="nota-g">Solo cosechas registradas en kilos.</p>' : '<div class="empty"><b>Sin cosechas en kilos</b><p>Al registrar una cosecha con su cantidad, aquí verá el total por cultivo.</p></div>') + '</section></div>';
+
+  /* Datos y respaldo */
+  h += '<section class="card respaldo"><div class="card-h"><h2>Datos y respaldo</h2><span class="pill" data-s="' + S.sync + '" style="cursor:default"><i></i>' + est + '</span></div>' +
+    '<p class="hint">' + expl + '</p><p class="hint" style="margin-top:10px">' + (dr === null ? 'Aún no ha descargado ningún respaldo.' : 'Último respaldo: ' + (dr === 0 ? 'hoy' : 'hace ' + plural(dr, 'día', 'días')) + '.') + ' Se recomienda uno al mes.</p>' +
+    '<div class="data-btns"><button class="btn primary" type="button" data-a="exp-json"' + (S.cultivos.length ? '' : ' disabled') + '>' + ic('bajar') + 'Descargar respaldo</button>' +
+    '<button class="btn" type="button" data-a="exp-csv"' + (S.cultivos.length ? '' : ' disabled') + '>' + ic('bajar') + 'Actividades (CSV)</button>' +
+    '<button class="btn" type="button" data-a="copiar"' + (S.cultivos.length ? '' : ' disabled') + '>' + ic('copiar') + 'Copiar respaldo</button>' +
+    '<button class="btn" type="button" data-a="importar">' + ic('subir') + 'Importar respaldo</button></div></section>';
+
+  /* Historial en línea de tiempo */
+  var filas = [];
+  S.cultivos.forEach(function (c) {
+    if (S.hf.c !== 'todos' && S.hf.c !== c.id) return;
+    if (S.hf.t === 'todos' || S.hf.t === 'siembra') filas.push({ f: c.fechaSiembra, c: c, tipo: 'siembra', e: null });
+    c.eventos.forEach(function (e) { if (S.hf.t === 'todos' || S.hf.t === e.tipo) filas.push({ f: e.fecha, c: c, tipo: e.tipo, e: e }); });
+  });
+  filas.sort(function (a, b) { return a.f < b.f ? 1 : a.f > b.f ? -1 : 0; });
+  var optC = '<option value="todos">Todos los cultivos</option>' + S.cultivos.map(function (c) { return '<option value="' + c.id + '"' + (S.hf.c === c.id ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('');
+  var optT = '<option value="todos">Todas las actividades</option>' + ['siembra', 'riego', 'abono', 'plagas', 'poda', 'cosecha', 'nota'].map(function (k) { return '<option value="' + k + '"' + (S.hf.t === k ? ' selected' : '') + '>' + EV[k].l + '</option>'; }).join('');
+  h += '<section class="card"><div class="card-h"><h2>Historial</h2><div class="h-filtros"><label class="sr" for="hf-c">Cultivo</label><select id="hf-c">' + optC + '</select><label class="sr" for="hf-t">Actividad</label><select id="hf-t">' + optT + '</select></div></div>';
+  if (!filas.length) h += '<div class="empty"><b>Sin registros</b><p>Cada siembra, riego, abono o cosecha queda anotada aquí con su fecha.</p></div>';
+  else {
+    h += '<ul class="tl">' + filas.slice(0, S.hf.n).map(function (x) {
+      var e = x.e, det = e ? (e.cantidad ? num(e.cantidad, 2) + ' ' + e.unidad : '') + (e.via === 'lluvia' ? 'Llovió' : '') + (e.nota ? (e.cantidad || e.via ? ' · ' : '') + esc(e.nota) : '') : (x.c.cantidad ? plural(x.c.cantidad, 'planta', 'plantas') : '');
+      return '<li class="tl-row" style="--c:var(--ev-' + x.tipo + ')"><span class="tl-dot">' + ic(EV[x.tipo].ic, 16) + '</span><div class="tl-b"><div class="tl-t"><b>' + EV[x.tipo].l + '</b><time>' + fechaCorta(x.f) + '</time></div>' +
+        '<div class="tl-c"><span class="thumb s" style="--cc:' + colorCultivo(x.c) + '">' + ilusCultivo(x.c.nombre, x.c.tipo, 36) + '</span><span>' + esc(x.c.nombre) + '</span></div>' + (det ? '<span class="h-det">' + det + '</span>' : '') + '</div>' +
+        (e ? '<button class="btn sm ghost" type="button" data-a="ev-del" data-id="' + x.c.id + '" data-e="' + e.id + '" aria-label="Eliminar actividad">' + ic('x', 15) + '</button>' : '') + '</li>';
+    }).join('') + '</ul>';
+    if (filas.length > S.hf.n) h += '<div class="sheet-actions" style="justify-content:center"><button class="btn" type="button" data-a="mas-hist">Mostrar más (' + (filas.length - S.hf.n) + ')</button></div>';
+  }
+  h += '</section><section class="card"><details class="acerca"><summary>Acerca de este calendario</summary>' +
+    '<p>Las fases se calculan con una fórmula astronómica (Meeus); el instante de cada cuarto principal tiene un error de pocas horas. Los horarios se muestran en la hora de este dispositivo.</p>' +
+    '<p>El calendario lunar agrícola es una práctica tradicional. Los estudios controlados no han demostrado de forma consistente que las fases lunares cambien el rendimiento de los cultivos, por eso conviene usarlo como una guía de organización, junto con la observación del suelo, la lluvia y la temperatura de su finca.</p>' +
+    '<p>Los intervalos de riego, abono y cosecha del catálogo, las guías de cultivo y las recetas de abonos son valores de referencia que debe ajustar a su finca.</p></details></section>';
+  return h;
+}
+
+/* ============================================================
+   APLICACIÓN (DOM, almacenamiento, vistas)
+   ============================================================ */
+var $ = function (s, r) { return (r || document).querySelector(s); };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+function num(n, d) { return Number(n).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: d == null ? 1 : d }); }
+function hora(d) { try { return d.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }); } catch (e) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); } }
+function plural(n, s, p) { return n + ' ' + (n === 1 ? s : p); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+/* ---------- Iconos ---------- */
+var IC_P = {
+  hoy: '<path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z"/>',
+  calendario: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  huerta: '<path d="M12 21v-9"/><path d="M12 12c0-4 2.6-6.5 7-6.5 0 4-2.6 6.5-7 6.5z"/><path d="M12 14.5c0-3-2-5-5.5-5 0 3 2 5 5.5 5z"/>',
+  registro: '<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
+  riego: '<path d="M12 3.5c3.2 3.9 5.5 6.7 5.5 9.6a5.5 5.5 0 0 1-11 0c0-2.9 2.3-5.7 5.5-9.6z"/>',
+  abono: '<path d="M4 20h16"/><path d="M6.5 20c0-4 2.3-6.5 5.5-6.5s5.5 2.5 5.5 6.5"/><path d="M12 13.5V9"/><path d="M12 9c0-2.2 1.4-3.8 3.8-3.8 0 2.2-1.400 3.8-3.800 3.800z"/>',
+  plagas: '<path d="M12 3l7 3v5.500c0 4.300-2.900 7.600-7 9.500-4.100-1.900-7-5.200-7-9.500V6l7-3z"/><path d="M9.500 12l1.800 1.800 3.400-3.600"/>',
+  poda: '<circle cx="6.500" cy="7" r="2.300"/><circle cx="6.500" cy="17" r="2.300"/><path d="M8.500 8.400L20 17M8.500 15.600L20 7"/>',
+  cosecha: '<path d="M3.500 10h17l-1.700 9a1.600 1.600 0 0 1-1.600 1.300H6.800A1.600 1.600 0 0 1 5.200 19L3.500 10z"/><path d="M8 10l3-5.500M16 10l-3-5.500"/>',
+  nota: '<path d="M4 20l1-4L16.600 4.400a1.700 1.700 0 0 1 2.400 0l.6.6a1.700 1.700 0 0 1 0 2.400L8 19l-4 1z"/>',
+  mas: '<path d="M12 5v14M5 12h14"/>',
+  check: '<path d="M5 12.500l4.500 4.500L19 7.500"/>',
+  bajar: '<path d="M12 4v11M7.500 10.500L12 15l4.500-4.500M5 20h14"/>',
+  subir: '<path d="M12 15V4M7.500 8.500L12 4l4.500 4.500M5 20h14"/>',
+  abajo: '<path d="M6 9l6 6 6-6"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  copiar: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+  der: '<path d="M9 6l6 6-6 6"/>',
+  izq: '<path d="M15 6l-6 6 6 6"/>'
+};
+function ic(k, sz) { var s = sz || 18; return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC_P[k] + '</svg>'; }
+var EV = {
+  riego: { l: 'Riego', ic: 'riego' }, abono: { l: 'Abono', ic: 'abono' }, plagas: { l: 'Control de plagas', ic: 'plagas' },
+  poda: { l: 'Poda', ic: 'poda' }, cosecha: { l: 'Cosecha', ic: 'cosecha' }, nota: { l: 'Nota', ic: 'nota' }, siembra: { l: 'Siembra', ic: 'huerta' }
+};
+var TIPOS_PL = { hoja: 'Hojas', fruto: 'Frutos', raiz: 'Raíces' };
+function icoEv(k) { return '<span class="ico" style="--c:var(--ev-' + k + ')">' + ic(EV[k].ic) + '</span>'; }
+var VISTAS = [
+  { k: 'hoy', l: 'Hoy', i: 'hoy' }, { k: 'calendario', l: 'Calendario', i: 'calendario' },
+  { k: 'huerta', l: 'Mi huerta', i: 'huerta' }, { k: 'abonos', l: 'Abonos', i: 'abono' }, { k: 'registro', l: 'Registro', i: 'registro' }
+];
+
+/* ---------- Estado ---------- */
+var LS_KEY = 'huerta_lunar_v2';
+var ini = hoyISO();
+var S = {
+  cultivos: [], vista: 'hoy', mes: { y: +ini.slice(0, 4), m: +ini.slice(5, 7) - 1 }, sel: ini,
+  filtro: 'activos', af: 'todos', exp: {}, hf: { c: 'todos', t: 'todos', n: 60 }, sync: 'local', respaldo: null, animar: false, migrados: 0, motivo: ''
+};
+var sincronizados = {};
+var Nube = { col: null, cola: {} };
+var undoFn = null, toastT = null, sheetPrev = null, diaRender = ini;
+
+/* ---------- Almacenamiento local ---------- */
+function lsEscribir() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ v: 2, cultivos: S.cultivos, sincronizados: Object.keys(sincronizados), respaldo: S.respaldo })); } catch (e) {}
+}
+function cargarLocal() {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) {}
+  if (d && Array.isArray(d.cultivos)) {
+    S.cultivos = d.cultivos.map(normalizarCultivo).filter(Boolean);
+    (d.sincronizados || []).forEach(function (id) { sincronizados[id] = 1; });
+    S.respaldo = d.respaldo || null;
+    return;
+  }
+  try { /* versión anterior de la app: misma dirección y navegador */
+    var v1 = JSON.parse(localStorage.getItem('huerta_cultivos') || 'null');
+    if (Array.isArray(v1)) {
+      S.cultivos = v1.map(convertirAntiguo).filter(Boolean);
+      S.migrados = S.cultivos.length;
+      if (S.cultivos.length) lsEscribir();
+    }
+  } catch (e) {}
+}
+
+/* ---------- Nube (base de datos del artifact, privada por usuario) ---------- */
+function nubeEscribir(c) {
+  if (!Nube.col) return;
+  var key = 'c_' + c.id;
+  Nube.cola[key] = (Nube.cola[key] || Promise.resolve()).then(function () { return Nube.col.doc(key).set(c); }).catch(errNube);
+}
+function nubeBorrar(id) {
+  if (!Nube.col) return;
+  var key = 'c_' + id;
+  Nube.cola[key] = (Nube.cola[key] || Promise.resolve()).then(function () { return Nube.col.doc(key).delete(); }).catch(errNube);
+}
+function errNube(e) {
+  var code = e && e.code;
+  if (code === 'quota_exceeded') { S.sync = 'error'; S.motivo = 'La nube alcanzó su límite de almacenamiento. Descargue un respaldo.'; }
+  else if (code === 'invalid_argument' || code === 'not_granted' || code === 'revoked') { S.sync = 'local'; S.motivo = 'Esta cuenta no tiene permiso para guardar en la nube. Los datos quedan en este dispositivo.'; Nube.col = null; }
+  else { S.sync = 'error'; S.motivo = 'No se pudo sincronizar. Sus datos siguen guardados en este dispositivo.'; }
+  pintarEstado();
+  if (!$('#overlay').hidden) return;
+  toast(S.motivo);
+}
+function alSnapshot(snap) {
+  if (snap.metadata && snap.metadata.fromCache) return; /* esperar la respuesta definitiva del servidor */
+  var remotos = {}, hayMeta = false;
+  snap.docs.forEach(function (d) {
+    if (d.id === 'meta') { hayMeta = true; return; }
+    if (d.id.indexOf('c_') !== 0) return;
+    var c = normalizarCultivo(d.data());
+    if (c) remotos[c.id] = c;
+  });
+  var lista = [], subir = [], vistos = {};
+  Object.keys(remotos).forEach(function (id) {
+    var r = remotos[id], l = porId(id);
+    if (l && l.actualizado > r.actualizado) { lista.push(l); subir.push(l); } else lista.push(r);
+    vistos[id] = 1;
+  });
+  S.cultivos.forEach(function (c) {
+    if (vistos[c.id]) return;
+    if (!sincronizados[c.id]) { lista.push(c); subir.push(c); } /* nunca llegó a la nube: se sube */
+    /* si ya estuvo sincronizado y ya no está, fue eliminado desde otro dispositivo */
+  });
+  sincronizados = {};
+  lista.forEach(function (c) { sincronizados[c.id] = 1; });
+  S.cultivos = lista;
+  subir.forEach(nubeEscribir);
+  if (!hayMeta) Nube.col.doc('meta').set({ app: 'huerta-lunar', version: 2, creado: new Date().toISOString() }).catch(errNube);
+  S.sync = 'nube'; S.motivo = '';
+  lsEscribir(); render();
+}
+function iniciarNube() {
+  if (!(window.claude && typeof window.claude.use === 'function')) { S.sync = 'local'; pintarEstado(); return; }
+  S.sync = 'conectando'; pintarEstado();
+  Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (r) {
+    var db = r[0], user = r[1];
+    if (!db || !user) { S.sync = 'local'; pintarEstado(); return null; }
+    return user.id().then(function (uid) {
+      if (!uid) { S.sync = 'local'; S.motivo = 'Inicie sesión en Claude para sincronizar entre dispositivos.'; pintarEstado(); return; }
+      Nube.col = db.collection('data/users/' + uid);
+      Nube.col.onSnapshot(alSnapshot, function (e) { errNube(e); });
+    });
+  }).catch(function () { S.sync = 'local'; pintarEstado(); });
+}
+
+/* ---------- Operaciones sobre los datos ---------- */
+function porId(id) { for (var i = 0; i < S.cultivos.length; i++) if (S.cultivos[i].id === id) return S.cultivos[i]; return null; }
+function clonar(o) { return JSON.parse(JSON.stringify(o)); }
+function guardar(c, sinRender) {
+  c.actualizado = new Date().toISOString();
+  var i = -1;
+  S.cultivos.forEach(function (x, k) { if (x.id === c.id) i = k; });
+  if (i < 0) S.cultivos.push(c); else S.cultivos[i] = c;
+  lsEscribir(); nubeEscribir(c);
+  if (!sinRender) render();
+}
+function quitar(id, sinRender) {
+  S.cultivos = S.cultivos.filter(function (c) { return c.id !== id; });
+  lsEscribir(); nubeBorrar(id);
+  if (!sinRender) render();
+}
+function agregarEvento(cid, ev, fin) {
+  var c = porId(cid); if (!c) return null;
+  var n = normalizarEvento(ev); if (!n) return null;
+  var cc = clonar(c); cc.eventos.push(n);
+  if (fin) cc.estado = 'cosechado';
+  guardar(cc); return n;
+}
+function quitarEvento(cid, eid) {
+  var c = porId(cid); if (!c) return null;
+  var cc = clonar(c), ev = null;
+  cc.eventos = cc.eventos.filter(function (e) { if (e.id === eid) { ev = e; return false; } return true; });
+  if (ev) guardar(cc);
+  return ev;
+}
+function rapido(cid, tipo, via) {
+  var c = porId(cid); if (!c) return;
+  var n = agregarEvento(cid, { fecha: hoyISO(), tipo: tipo, via: via });
+  if (!n) return;
+  toast((via === 'lluvia' ? 'Lluvia anotada como riego' : EV[tipo].l + ' registrado') + ' · ' + c.nombre, function () { quitarEvento(cid, n.id); });
+}
+function borrarEvento(cid, eid) {
+  var ev = quitarEvento(cid, eid);
+  if (!ev) return;
+  toast('Actividad eliminada', function () {
+    var c = porId(cid); if (!c) return;
+    var cc = clonar(c); cc.eventos.push(ev); guardar(cc);
+  });
+}
+function cambiarEstado(id) {
+  var c = porId(id); if (!c) return;
+  var cc = clonar(c); cc.estado = c.estado === 'activo' ? 'cosechado' : 'activo'; guardar(cc);
+  toast(cc.estado === 'cosechado' ? 'Cultivo marcado como terminado' : 'Cultivo reactivado', function () { cambiarEstado(id); });
+}
+function eliminarCultivo(id) {
+  var c = porId(id); if (!c) return;
+  var copia = clonar(c);
+  quitar(id); cerrarSheet();
+  toast('Cultivo eliminado · ' + copia.nombre, function () { guardar(copia); });
+}
+function importarLista(lista) {
+  var prev = clonar(S.cultivos), nuevos = 0, act = 0, omit = 0;
+  lista.forEach(function (c) {
+    var ex = porId(c.id);
+    if (!ex) ex = S.cultivos.filter(function (x) { return x.nombre.toLowerCase() === c.nombre.toLowerCase() && x.fechaSiembra === c.fechaSiembra; })[0];
+    if (!ex) { guardar(c, true); nuevos++; }
+    else if (ex.id === c.id && c.actualizado > ex.actualizado) { guardar(c, true); act++; }
+    else omit++;
+  });
+  render();
+  return { prev: prev, nuevos: nuevos, act: act, omit: omit };
+}
+function restaurarEstado(prev) {
+  var ids = {};
+  prev.forEach(function (p) { ids[p.id] = 1; });
+  S.cultivos.slice().forEach(function (c) { if (!ids[c.id]) quitar(c.id, true); });
+  prev.forEach(function (p) { guardar(p, true); });
+  render();
+}
+
+/* ---------- Mensajes y hoja inferior ---------- */
+function toast(msg, undo) {
+  var t = $('#toast');
+  t.innerHTML = '<span>' + esc(msg) + '</span>' + (undo ? '<button type="button" class="btn sm" data-a="undo">Deshacer</button>' : '');
+  t.hidden = false; undoFn = undo || null;
+  clearTimeout(toastT);
+  toastT = setTimeout(function () { t.hidden = true; undoFn = null; }, undo ? 9000 : 4500);
+}
+function abrirSheet(html) {
+  sheetPrev = document.activeElement;
+  $('#sheet').innerHTML = html;
+  $('#overlay').hidden = false; document.body.classList.add('lock');
+  var f = $('#sheet input:not([type=radio]):not([type=checkbox]), #sheet select, #sheet textarea');
+  if (f && window.matchMedia && window.matchMedia('(min-width: 720px)').matches) { try { f.focus(); } catch (e) {} }
+}
+function cerrarSheet() {
+  $('#overlay').hidden = true; $('#sheet').innerHTML = ''; document.body.classList.remove('lock');
+  if (sheetPrev && sheetPrev.focus) { try { sheetPrev.focus(); } catch (e) {} }
+}
+
+/* ---------- Piezas de vista ---------- */
+function actHTML(a) {
+  return '<div class="act">' + icoEv(a.k === 'siembra' ? 'siembra' : a.k) + '<div><b>' + a.t + '</b><p>' + a.d + '</p><span class="chip ' + (a.ok ? 'ok' : 'urgent') + '">' + (a.ok ? 'Recomendado' : 'No recomendado') + '</span></div></div>';
+}
+function chipNivel(nivel, texto) { return '<span class="chip ' + nivel + '">' + esc(texto) + '</span>'; }
+function eventosDelDia(iso) {
+  var out = [];
+  S.cultivos.forEach(function (c) {
+    if (c.fechaSiembra === iso) out.push({ k: 'siembra', c: c, e: null });
+    c.eventos.forEach(function (e) { if (e.fecha === iso) out.push({ k: e.tipo, c: c, e: e }); });
+  });
+  return out;
+}
+function marcasMes(y, m) {
+  var ord = ['siembra', 'riego', 'abono', 'plagas', 'poda', 'cosecha', 'nota'], mapa = {};
+  var pref = y + '-' + pad(m + 1) + '-';
+  S.cultivos.forEach(function (c) {
+    if (c.fechaSiembra.indexOf(pref) === 0) (mapa[c.fechaSiembra] = mapa[c.fechaSiembra] || {}).siembra = 1;
+    c.eventos.forEach(function (e) { if (e.fecha.indexOf(pref) === 0) (mapa[e.fecha] = mapa[e.fecha] || {})[e.tipo] = 1; });
+  });
+  Object.keys(mapa).forEach(function (k) { mapa[k] = ord.filter(function (o) { return mapa[k][o]; }); });
+  return mapa;
+}
+function cuandoCosecha(f) { return f < 0 ? 'Lista hace ' + plural(-f, 'día', 'días') : f === 0 ? 'Lista hoy' : 'En ' + plural(f, 'día', 'días'); }
+function emptyCultivos() {
+  return '<div class="empty"><b>Aún no hay cultivos</b><p>Agregue lo que ha sembrado y la app calculará riego, abono y cosecha, y le avisará aquí lo que toca hacer cada día.</p><button class="btn primary" type="button" data-a="semilla">' + ic('huerta') + 'Cargar mis 5 cultivos</button><button class="btn" type="button" data-a="nuevo">' + ic('mas') + 'Agregar otro cultivo</button><p class="hint">Tomate, lechuga, cebolla larga, ajo y maní, con las edades que usted indicó el 28 de octubre de 2026.</p></div>';
+}
+var SEMILLA = [
+  { nombre: 'Tomate', fechaSiembra: '2026-08-31' }, { nombre: 'Lechuga', fechaSiembra: '2026-08-31' },
+  { nombre: 'Cebolla larga', fechaSiembra: '2026-08-14' }, { nombre: 'Ajo', fechaSiembra: '2026-08-14' }, { nombre: 'Maní', fechaSiembra: '2026-08-19' }
+];
+function cargarSemilla() {
+  var n = 0;
+  SEMILLA.forEach(function (x) {
+    var cat = buscarCatalogo(x.nombre);
+    if (!cat || S.cultivos.some(function (c) { return c.nombre === x.nombre && c.fechaSiembra === x.fechaSiembra; })) return;
+    var c = normalizarCultivo({ nombre: cat.n, tipo: cat.t, fechaSiembra: x.fechaSiembra, diasCosecha: cat.dc, diasRiego: cat.dr, diasAbono: cat.da, continuo: cat.cont });
+    if (c) { guardar(c, true); n++; }
+  });
+  render();
+  toast(n ? plural(n, 'cultivo cargado', 'cultivos cargados') : 'Esos cultivos ya estaban cargados');
+}
+
+/* ---------- Vista: Hoy ---------- */
+function vistaHoy() {
+  var ahora = new Date(), hoy = fmtISO(ahora), f = faseInfo(ahora), F = FASES[f.idx];
+  var prox = [0, 90, 180, 270].map(function (a) { return { q: a / 90, d: proximaFase(ahora, a) }; })
+    .filter(function (x) { return x.d; }).sort(function (a, b) { return a.d - b.d; });
+  var h = '<section class="hero" aria-label="Fase lunar de hoy"><div class="hero-top"><div class="hero-moon">' + lunaSVG(f.psi, 148, 'h', true) + '</div><div>' +
+    '<p class="eyebrow">Hoy · ' + fechaLarga(hoy) + '</p><h1>' + F.n + '</h1><p class="hero-sub">' + F.d + '</p>' +
+    '<dl class="hero-stats"><div><dt>Iluminación</dt><dd>' + Math.round(f.illum * 100) + '<small> %</small></dd></div>' +
+    '<div><dt>Edad</dt><dd>' + num(f.edad, 1) + '<small> días</small></dd></div>' +
+    '<div><dt>Tendencia</dt><dd>' + (f.crece ? 'Creciente' : 'Menguante') + '</dd></div></dl></div></div>' +
+    '<p class="hero-consejo">' + CONSEJO_FASE[f.idx] + '</p>' +
+    '<ol class="hero-next" aria-label="Próximas fases principales">' + prox.map(function (x) {
+      return '<li>' + lunaSVG(x.q * 90, 32, 'n' + x.q, false) + '<div><b>' + PRINCIPALES[x.q] + '</b><span>' + fechaCorta(fmtISO(x.d)) + ' · ' + hora(x.d) + '</span></div></li>';
+    }).join('') + '</ol></section>';
+
+  h += '<section class="card ciclo-card"><div class="card-h"><h2>Ciclo lunar</h2><span class="muted">Toque una fase</span></div>' + cicloHTML(f.idx) + leyendaFav() + '</section>';
+  var tareas = tareasHoy(S.cultivos, hoy), activos = S.cultivos.filter(function (c) { return c.estado === 'activo'; }).length;
+  h += '<div class="g2"><section class="card"><div class="card-h"><h2>Hoy en su huerta</h2>' + (S.cultivos.length ? '<span class="muted">' + plural(activos, 'cultivo activo', 'cultivos activos') + '</span>' : '') + '</div>';
+  if (!S.cultivos.length) h += emptyCultivos();
+  else if (!tareas.length) h += '<div class="empty"><b>Todo al día</b><p>No hay riegos, abonos ni cosechas pendientes para hoy.</p></div>';
+  else {
+    h += '<ul class="rows">' + tareas.map(function (t) {
+      var c = porId(t.id), et = { riego: 'Regar', abono: 'Abonar', cosecha: 'Cosechar' }[t.tipo];
+      var cuandoT = t.tipo === 'cosecha' ? cuandoCosecha(t.falta) : cuando(t.falta);
+      var nivel = t.tipo === 'cosecha' ? 'listo' : (t.falta < 0 ? 'urgent' : 'soon');
+      var btns = t.tipo === 'riego'
+        ? '<button class="btn sm" type="button" data-a="rapido" data-id="' + c.id + '" data-t="riego">Regué</button><button class="btn sm ghost" type="button" data-a="rapido" data-id="' + c.id + '" data-t="riego" data-via="lluvia">Llovió</button>'
+        : t.tipo === 'abono'
+          ? '<button class="btn sm" type="button" data-a="rapido" data-id="' + c.id + '" data-t="abono">Abonado</button>'
+          : '<button class="btn sm primary" type="button" data-a="evento" data-id="' + c.id + '" data-t="cosecha">Registrar</button>';
+      return '<li><span class="thumb" style="--cc:' + colorCultivo(c) + '">' + ilusCultivo(c.nombre, c.tipo, 48) + '</span><div class="txt"><b><i class="vd" style="background:var(--ev-' + t.tipo + ')"></i>' + et + ' · ' + esc(c.nombre) + '</b><span>' + (c.parcela ? esc(c.parcela) + ' · ' : '') + cuandoT + '</span></div><div class="btns">' + btns + '</div></li>';
+    }).join('') + '</ul>';
+  }
+  h += '</section><section class="card"><div class="card-h"><h2>Ventanas de siembra</h2><span class="muted">según la fase</span></div><div class="stack" style="gap:10px">';
+  ['hoja', 'fruto', 'raiz'].forEach(function (t) {
+    var v = ventanaLunar(t, hoy), ej = CATALOGO.filter(function (c) { return c.t === t; }).slice(0, 4).map(function (c) { return c.n.toLowerCase(); }).join(', ');
+    var chip, txt;
+    if (!v) { chip = '<span class="chip">Sin datos</span>'; txt = ''; }
+    else if (v.abierta) { chip = '<span class="chip ok">Abierta hoy</span>'; txt = v.fin ? 'Hasta el ' + fechaCorta(v.fin) : ''; }
+    else { chip = '<span class="chip">En ' + plural(diasEntre(hoy, v.ini), 'día', 'días') + '</span>'; txt = 'Del ' + fechaCorta(v.ini) + (v.fin ? ' al ' + fechaCorta(v.fin) : ''); }
+    h += '<div class="win"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>' + TIPOS_PL[t] + '</b>' + chip + '</div>' + (txt ? '<span class="mono" style="font-size:13px">' + txt + '</span>' : '') + '<span class="hint">' + cap(ej) + '</span></div>';
+  });
+  h += '</div></section></div>';
+
+  h += '<section class="card"><div class="card-h"><h2>Qué favorece la luna hoy</h2></div><div class="acts">' + actividades(f.idx).map(actHTML).join('') + '</div></section>';
+  h += '<section class="card"><div class="card-h"><h2>Consejos del día</h2></div><div class="tips">' + consejos(f.idx, hoy, 6).map(function (t) {
+    return '<div class="tip"><p class="eyebrow">' + t.c + '</p><b>' + t.t + '</b><p>' + t.x + '</p></div>';
+  }).join('') + '</div></section>';
+  return h;
+}
+
+/* ---------- Vista: Mi huerta ---------- */
+function cardCultivo(c, hoy) {
+  var k = estadoCosecha(c, hoy), futuro = k.vida < 0, activo = c.estado === 'activo', col = 'var(--t-' + c.tipo + ')';
+  var r = estadoRiego(c, hoy), a = estadoAbono(c, hoy), id = c.id, abierto = !!S.exp[id];
+  var etapaCls = !activo ? '' : k.nivel === 'listo' ? 'listo' : futuro ? '' : 'ok';
+  var cc = colorCultivo(c);
+  var h = '<article class="card crop" style="--cc:' + cc + '"><div class="crop-ban">' + ilusCultivo(c.nombre, c.tipo, 108) + '<div class="ban-t"><h3>' + esc(c.nombre) + '</h3><div class="meta"><span class="chip t" style="--c:' + col + '"><i></i>' + TIPOS[c.tipo] + '</span>' +
+    (c.parcela ? '<span>' + esc(c.parcela) + '</span>' : '') + (c.cantidad ? '<span>' + plural(c.cantidad, 'planta', 'plantas') + '</span>' : '') + '</div><span class="chip ' + etapaCls + '">' + k.etapa + '</span></div></div>';
+  h += '<div><div class="prog-top"><b>' + (futuro ? '—' : k.pct + ' %') + '</b><span>' + (futuro ? 'Siembra en ' + plural(-k.vida, 'día', 'días') : 'Día ' + k.vida + ' de ' + k.total) + '</span></div>' +
+    '<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (futuro ? 0 : k.pct) + '" aria-label="Avance hacia la cosecha"><i style="width:' + (futuro ? 0 : k.pct) + '%;--c:' + col + '"></i></div>' +
+    '<div class="prog-f"><span>Siembra ' + fechaCorta(c.fechaSiembra) + '</span><span>Cosecha ≈ ' + fechaCorta(k.fecha) + '</span></div>' +
+    (k.nCosechas ? '<p class="hint" style="margin-top:8px">' + plural(k.nCosechas, 'cosecha registrada', 'cosechas registradas') + (k.kg ? ' · ' + num(k.kg, 2) + ' kg' : '') + '</p>' : '') + '</div>';
+  if (futuro) {
+    var fi = faseDelDia(c.fechaSiembra), fav = esFavorable(c.tipo, fi.idx);
+    h += '<p class="luna-l">' + lunaSVG(fi.psi, 20, '', false) + '<span>' + FASES[fi.idx].n + ' · ' + (fav ? 'fecha favorable para sembrar este tipo' : 'fuera de la ventana lunar de este tipo') + '</span></p>';
+  } else if (activo) {
+    h += '<ul class="rows"><li>' + icoEv('riego') + '<div class="txt"><b>Riego ' + chipNivel(r.nivel, cuando(r.falta)) + '</b><span>Cada ' + plural(c.diasRiego, 'día', 'días') + ' · último ' + fechaCorta(r.ult) + '</span></div>' +
+      '<div class="btns"><button class="btn sm" type="button" data-a="rapido" data-id="' + id + '" data-t="riego">Regué</button><button class="btn sm ghost" type="button" data-a="rapido" data-id="' + id + '" data-t="riego" data-via="lluvia">Llovió</button></div></li>' +
+      '<li>' + icoEv('abono') + '<div class="txt"><b>Abono ' + chipNivel(a.nivel, cuando(a.falta)) + '</b><span>Cada ' + plural(c.diasAbono, 'día', 'días') + ' · último ' + fechaCorta(a.ult) + '</span></div>' +
+      '<div class="btns"><button class="btn sm" type="button" data-a="rapido" data-id="' + id + '" data-t="abono">Abonado</button></div></li></ul>';
+  }
+  h += '<div class="crop-f">' + (activo ? '<button class="btn sm primary" type="button" data-a="evento" data-id="' + id + '" data-t="cosecha">' + ic('cosecha', 16) + 'Cosecha</button><button class="btn sm" type="button" data-a="evento" data-id="' + id + '" data-t="plagas">Otra actividad</button>' : '') +
+    '<button class="btn sm guia-b" type="button" data-a="guia" data-id="' + id + '">' + ic('nota', 16) + 'Guía</button>' +
+    '<button class="btn sm ghost" type="button" data-a="detalle" data-id="' + id + '" aria-expanded="' + abierto + '">' + (abierto ? 'Ocultar' : 'Detalles') + '</button></div>';
+  if (abierto) {
+    var ult = c.eventos.slice().sort(function (x, y) { return x.fecha < y.fecha ? 1 : x.fecha > y.fecha ? -1 : 0; }).slice(0, 8);
+    h += '<div class="det">' + (c.notas ? '<p class="hint">' + esc(c.notas) + '</p>' : '') +
+      '<p class="hint mono" style="font-size:12.5px">Siembra ' + fechaMedia(c.fechaSiembra) + ' · cosecha a los ' + c.diasCosecha + ' d · riego c/' + c.diasRiego + ' d · abono c/' + c.diasAbono + ' d' + (c.continuo ? ' · cosecha continua' : '') + '</p>';
+    h += ult.length ? '<ul class="mini">' + ult.map(function (e) {
+      var det = (e.cantidad ? num(e.cantidad, 2) + ' ' + e.unidad : '') + (e.via === 'lluvia' ? 'Llovió' : '') + (e.nota ? (e.cantidad || e.via ? ' · ' : '') + esc(e.nota) : '');
+      return '<li><time>' + fechaCorta(e.fecha) + '</time><span class="grow"><b>' + EV[e.tipo].l + '</b>' + (det ? ' · ' + det : '') + '</span><button class="btn sm ghost" type="button" data-a="ev-del" data-id="' + id + '" data-e="' + e.id + '" aria-label="Eliminar actividad">' + ic('x', 15) + '</button></li>';
+    }).join('') + '</ul>' : '<p class="hint">Todavía no hay actividades registradas.</p>';
+    h += '<div class="crop-f"><button class="btn sm" type="button" data-a="editar" data-id="' + id + '">Editar</button><button class="btn sm" type="button" data-a="fin" data-id="' + id + '">' + (activo ? 'Marcar como terminado' : 'Reactivar') + '</button><button class="btn sm danger ghost" type="button" data-a="eliminar" data-id="' + id + '">Eliminar</button></div></div>';
+  }
+  return h + '</article>';
+}
+function vistaHuerta() {
+  var hoy = hoyISO(), act = S.cultivos.filter(function (c) { return c.estado === 'activo' && c.fechaSiembra <= hoy; });
+  var rg = act.filter(function (c) { return estadoRiego(c, hoy).nivel === 'urgent'; }).length;
+  var ab = act.filter(function (c) { return estadoAbono(c, hoy).nivel === 'urgent'; }).length;
+  var ls = act.filter(function (c) { return estadoCosecha(c, hoy).nivel === 'listo'; }).length;
+  var cuentas = { activos: 0, cosechados: 0, todos: S.cultivos.length };
+  S.cultivos.forEach(function (c) { cuentas[c.estado === 'activo' ? 'activos' : 'cosechados']++; });
+  var h = '<section class="card resumen" aria-label="Resumen"><div><b>' + cuentas.activos + '</b><span>Cultivos activos</span></div><div><b>' + rg + '</b><span>Riego pendiente</span></div><div><b>' + ab + '</b><span>Abono pendiente</span></div><div><b>' + ls + '</b><span>Listos para cosechar</span></div></section>';
+  var dr = diasRespaldo();
+  if (S.cultivos.length && (dr === null || dr > 30)) h += '<div class="back-aviso"><span>' + (dr === null ? 'Todavía no ha descargado un respaldo de sus cultivos.' : 'Su último respaldo fue hace ' + plural(dr, 'día', 'días') + '.') + '</span><button class="btn sm" type="button" data-a="tab" data-v="registro">Ir a respaldo</button></div>';
+  h += '<div class="barra"><div class="chips" role="group" aria-label="Filtro">' + [['activos', 'Activos'], ['cosechados', 'Terminados'], ['todos', 'Todos']].map(function (f) {
+    return '<button type="button" class="fchip" data-a="filtro" data-f="' + f[0] + '" aria-pressed="' + (S.filtro === f[0]) + '">' + f[1] + ' · ' + cuentas[f[0]] + '</button>';
+  }).join('') + '</div><button class="btn primary" type="button" data-a="nuevo">' + ic('mas') + 'Agregar cultivo</button></div>';
+  var lista = S.cultivos.filter(function (c) { return S.filtro === 'todos' || (S.filtro === 'activos') === (c.estado === 'activo'); })
+    .sort(function (a, b) { return a.fechaSiembra < b.fechaSiembra ? 1 : a.fechaSiembra > b.fechaSiembra ? -1 : 0; });
+  if (!S.cultivos.length) h += '<section class="card">' + emptyCultivos() + '</section>';
+  else if (!lista.length) h += '<section class="card"><div class="empty"><b>Nada en esta lista</b><p>Cambie el filtro para ver otros cultivos.</p></div></section>';
+  else h += '<div class="crops">' + lista.map(function (c) { return cardCultivo(c, hoy); }).join('') + '</div>';
+  return h;
+}
+
+function diasRespaldo() { return S.respaldo ? Math.max(0, diasEntre(S.respaldo.slice(0, 10), hoyISO())) : null; }
+
+/* ---------- Formularios ---------- */
+function opcionesCatalogo(sel) {
+  var g = { hoja: '', fruto: '', raiz: '' };
+  CATALOGO.forEach(function (c) { g[c.t] += '<option value="' + esc(c.n) + '"' + (c.n === sel ? ' selected' : '') + '>' + esc(c.n) + '</option>'; });
+  return '<option value="">Otro cultivo (personalizado)</option><optgroup label="Hojas">' + g.hoja + '</optgroup><optgroup label="Frutos">' + g.fruto + '</optgroup><optgroup label="Raíces y bulbos">' + g.raiz + '</optgroup>';
+}
+function formCultivo(id, fechaPre) {
+  var c = id ? porId(id) : null;
+  var v = c || { nombre: '', tipo: 'hoja', fechaSiembra: fechaPre || hoyISO(), parcela: '', cantidad: '', notas: '', diasCosecha: 60, diasRiego: 2, diasAbono: 15, continuo: false };
+  var cat = c && buscarCatalogo(c.nombre) ? c.nombre : '';
+  abrirSheet('<form id="fc" data-form="cultivo" data-id="' + (c ? c.id : '') + '" novalidate><h2>' + (c ? 'Editar cultivo' : 'Nuevo cultivo') + '</h2><p class="sub">Elija un cultivo de la lista para cargar sus tiempos de referencia.</p>' +
+    '<div class="field"><label for="fc-cat">Cultivo</label><select id="fc-cat">' + opcionesCatalogo(cat) + '</select></div>' +
+    '<div class="field"><label for="fc-nombre">Nombre o variedad</label><input id="fc-nombre" maxlength="60" autocomplete="off" placeholder="Ej: Tomate chonto" value="' + esc(v.nombre) + '"></div>' +
+    '<div class="row2 keep"><div class="field"><label for="fc-tipo">Tipo</label><select id="fc-tipo"><option value="hoja"' + (v.tipo === 'hoja' ? ' selected' : '') + '>Hoja</option><option value="fruto"' + (v.tipo === 'fruto' ? ' selected' : '') + '>Fruto</option><option value="raiz"' + (v.tipo === 'raiz' ? ' selected' : '') + '>Raíz o bulbo</option></select></div>' +
+    '<div class="field"><label for="fc-fecha">Fecha de siembra</label><input type="date" id="fc-fecha" value="' + esc(v.fechaSiembra) + '"></div></div>' +
+    '<p class="hint" id="fc-luna" style="margin:-4px 0 12px"></p>' +
+    '<div class="row2 keep"><div class="field"><label for="fc-parcela">Parcela o bancal</label><input id="fc-parcela" maxlength="60" placeholder="Ej: Bancal 2" value="' + esc(v.parcela) + '"></div>' +
+    '<div class="field"><label for="fc-cant">Número de plantas</label><input id="fc-cant" inputmode="numeric" maxlength="6" value="' + (v.cantidad || '') + '"></div></div>' +
+    '<div id="fc-guia" class="fc-guia" hidden></div><details class="adv"><summary>Ritmo de cuidados</summary><div class="row3"><div class="field"><label for="fc-dc">Días a cosecha</label><input id="fc-dc" inputmode="numeric" value="' + v.diasCosecha + '"></div>' +
+    '<div class="field"><label for="fc-dr">Riego cada (días)</label><input id="fc-dr" inputmode="numeric" value="' + v.diasRiego + '"></div><div class="field"><label for="fc-da">Abono cada (días)</label><input id="fc-da" inputmode="numeric" value="' + v.diasAbono + '"></div></div>' +
+    '<label class="chk"><input type="checkbox" id="fc-cont"' + (v.continuo ? ' checked' : '') + '><span>Cosecha continua: sigue produciendo después de la primera cosecha</span></label><p class="hint" id="fc-ref"></p></details>' +
+    '<div class="field"><label for="fc-notas">Notas</label><textarea id="fc-notas" rows="2" maxlength="1000">' + esc(v.notas) + '</textarea></div>' +
+    '<p class="hint" id="fc-err" role="alert" style="color:var(--bad)"></p>' +
+    '<div class="sheet-actions"><button type="button" class="btn" data-a="cerrar">Cancelar</button><button type="submit" class="btn primary">Guardar cultivo</button></div></form>');
+  hintCultivo(); refCatalogo();
+}
+function previaGuia() {
+  var b = $('#fc-guia'), info = guiaPorNombre($('#fc-cat').value);
+  if (!info) { b.hidden = true; b.innerHTML = ''; return; }
+  b.hidden = false; b.style.setProperty('--cc', COLOR_CULT[info.cat.n] || COLOR_TIPO[info.cat.t]);
+  b.innerHTML = '<div class="fg-h">' + ilusCultivo(info.cat.n, info.cat.t, 64) + '<b>Antes de sembrar ' + esc(info.cat.n.toLowerCase()) + '</b></div>' + lista(info.g.antes.slice(0, 3)) +
+    '<p class="hint">Después de guardar, la guía completa (siembra y cuidados) queda en el botón «Guía» del cultivo.</p>';
+}
+function refCatalogo() {
+  previaGuia();
+  var it = buscarCatalogo($('#fc-cat').value), r = $('#fc-ref');
+  r.textContent = it ? 'Referencia: separación ' + it.sep + ', profundidad ' + it.prof + '. ' + it.nota : 'Ajuste los tiempos según su clima y altura.';
+}
+function aplicarCatalogo() {
+  var it = buscarCatalogo($('#fc-cat').value);
+  if (it) {
+    $('#fc-nombre').value = it.n; $('#fc-tipo').value = it.t; $('#fc-dc').value = it.dc; $('#fc-dr').value = it.dr; $('#fc-da').value = it.da; $('#fc-cont').checked = it.cont;
+  }
+  refCatalogo(); hintCultivo();
+}
+function hintCultivo() {
+  var t = $('#fc-tipo').value, f = $('#fc-fecha').value, el = $('#fc-luna');
+  if (!esISO(f)) { el.textContent = ''; return; }
+  var fi = faseDelDia(f), fav = esFavorable(t, fi.idx), hoy = hoyISO();
+  var txt = '<span class="chip ' + (fav ? 'ok' : '') + '">' + (fav ? 'Fecha favorable' : 'Fuera de ventana') + '</span> ' + FASES[fi.idx].n + (fav ? ': buena luna para sembrar ' + TIPOS_PL[t].toLowerCase() + '.' : '.');
+  if (!fav && f >= hoy) { var v = ventanaLunar(t, f); if (v) txt += ' Próxima ventana para ' + TIPOS_PL[t].toLowerCase() + ': del ' + fechaCorta(v.ini) + (v.fin ? ' al ' + fechaCorta(v.fin) : '') + '.'; }
+  el.innerHTML = txt;
+}
+function guardarFormCultivo(form) {
+  var err = function (m) { $('#fc-err').textContent = m; };
+  var nombre = $('#fc-nombre').value.trim(), fecha = $('#fc-fecha').value;
+  if (!nombre) { err('Escriba el nombre del cultivo.'); $('#fc-nombre').focus(); return; }
+  if (!esISO(fecha)) { err('Elija la fecha de siembra.'); return; }
+  var dc = parseInt($('#fc-dc').value, 10), dr = parseInt($('#fc-dr').value, 10), da = parseInt($('#fc-da').value, 10);
+  if (!(dc > 0) || !(dr > 0) || !(da > 0)) { err('Los días de cosecha, riego y abono deben ser números mayores que cero.'); return; }
+  var prev = form.dataset.id ? porId(form.dataset.id) : null;
+  var c = normalizarCultivo({
+    id: prev ? prev.id : undefined, nombre: nombre, tipo: $('#fc-tipo').value, fechaSiembra: fecha, parcela: $('#fc-parcela').value,
+    cantidad: parseInt($('#fc-cant').value, 10) || 0, notas: $('#fc-notas').value, diasCosecha: dc, diasRiego: dr, diasAbono: da, continuo: $('#fc-cont').checked,
+    estado: prev ? prev.estado : 'activo', eventos: prev ? prev.eventos : [], creado: prev ? prev.creado : undefined
+  });
+  if (!c) { err('Revise los datos del cultivo.'); return; }
+  guardar(c); cerrarSheet();
+  toast(prev ? 'Cambios guardados · ' + c.nombre : 'Cultivo agregado · ' + c.nombre);
+}
+function formEvento(cid, tipo) {
+  var c = porId(cid); if (!c) return;
+  var radios = ['riego', 'abono', 'plagas', 'poda', 'cosecha', 'nota'].map(function (k) {
+    return '<label class="opt"><input type="radio" name="fe-tipo" value="' + k + '"' + (k === tipo ? ' checked' : '') + '><span style="--c:var(--ev-' + k + ')">' + ic(EV[k].ic) + EV[k].l.replace('Control de plagas', 'Plagas') + '</span></label>';
+  }).join('');
+  abrirSheet('<form id="fe" data-form="evento" data-id="' + c.id + '" novalidate><h2>Registrar actividad</h2><p class="sub">' + esc(c.nombre) + (c.parcela ? ' · ' + esc(c.parcela) : '') + '</p>' +
+    '<div class="seg" role="radiogroup" aria-label="Tipo de actividad">' + radios + '</div>' +
+    '<div class="field"><label for="fe-fecha">Fecha</label><input type="date" id="fe-fecha" value="' + hoyISO() + '"></div>' +
+    '<div id="fe-cos" class="row2 keep"><div class="field"><label for="fe-cant">Cantidad cosechada</label><input id="fe-cant" inputmode="decimal" placeholder="Ej: 2,5"></div><div class="field"><label for="fe-uni">Unidad</label><select id="fe-uni"><option value="kg">Kilos</option><option value="unid">Unidades</option><option value="manojos">Manojos</option></select></div></div>' +
+    '<label class="chk" id="fe-fin-w"><input type="checkbox" id="fe-fin"' + (c.continuo ? '' : ' checked') + '><span>Es la cosecha final: dar el cultivo por terminado</span></label>' +
+    '<div class="field"><label for="fe-nota" id="fe-nota-l">Nota (opcional)</label><textarea id="fe-nota" rows="2" maxlength="500"></textarea></div>' +
+    '<p class="hint" id="fe-err" role="alert" style="color:var(--bad)"></p><div class="sheet-actions"><button type="button" class="btn" data-a="cerrar">Cancelar</button><button type="submit" class="btn primary">Guardar</button></div></form>');
+  ajustarFormEvento();
+}
+function ajustarFormEvento() {
+  var t = ($('input[name=fe-tipo]:checked') || {}).value;
+  $('#fe-cos').hidden = t !== 'cosecha'; $('#fe-fin-w').hidden = t !== 'cosecha';
+  $('#fe-nota-l').textContent = t === 'nota' ? 'Nota' : 'Nota (opcional)';
+}
+function guardarFormEvento(form) {
+  var err = function (m) { $('#fe-err').textContent = m; };
+  var t = ($('input[name=fe-tipo]:checked') || {}).value, f = $('#fe-fecha').value, nota = $('#fe-nota').value.trim();
+  if (!esISO(f)) { err('Elija la fecha.'); return; }
+  if (t === 'nota' && !nota) { err('Escriba la nota.'); return; }
+  var ev = { fecha: f, tipo: t, nota: nota };
+  if (t === 'cosecha') {
+    var raw = $('#fe-cant').value.trim().replace(',', '.');
+    if (raw) { var n = parseFloat(raw); if (!(n > 0)) { err('La cantidad debe ser un número mayor que cero.'); return; } ev.cantidad = n; ev.unidad = $('#fe-uni').value; }
+  }
+  var c = porId(form.dataset.id), fin = t === 'cosecha' && $('#fe-fin').checked;
+  var n2 = agregarEvento(form.dataset.id, ev, fin);
+  cerrarSheet();
+  if (n2) toast(EV[t].l + ' registrada · ' + c.nombre, function () { var cc = porId(c.id); if (cc) { var k = clonar(cc); k.estado = fin ? 'activo' : k.estado; guardar(k); } quitarEvento(c.id, n2.id); });
+}
+function confirmarEliminar(id) {
+  var c = porId(id); if (!c) return;
+  abrirSheet('<h2>¿Eliminar este cultivo?</h2><p class="sub"><b>' + esc(c.nombre) + '</b> y sus ' + plural(c.eventos.length, 'actividad registrada', 'actividades registradas') + ' se borrarán. Podrá deshacerlo durante unos segundos. Si el cultivo ya terminó, es mejor marcarlo como terminado para conservar su historial.</p>' +
+    '<div class="sheet-actions"><button type="button" class="btn" data-a="cerrar">Cancelar</button><button type="button" class="btn" data-a="fin" data-id="' + id + '" data-cerrar="1">Marcar como terminado</button><button type="button" class="btn primary" style="background:var(--bad);color:#fff" data-a="eliminar-ok" data-id="' + id + '">Eliminar</button></div>');
+}
+
+/* ---------- Guía de cultivo ---------- */
+var FASES_G = [['antes', 'Antes de sembrar', 'Preparar'], ['durante', 'En la siembra', 'Sembrar'], ['despues', 'Después', 'Cuidar']];
+function lista(items) { return '<ul class="gl">' + items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'; }
+function panelGuia(c, fase, info) {
+  var g = info.g, k = estadoCosecha(c, hoyISO()), h = '';
+  if (fase === 'antes') {
+    h += lista(g.antes);
+    var v = ventanaLunar(c.tipo, hoyISO());
+    if (v) h += '<p class="g-luna">' + ic('hoy', 16) + '<span>' + (v.abierta ? 'Hoy es fecha lunar favorable para ' + TIPOS_PL[c.tipo].toLowerCase() + (v.fin ? ' (hasta el ' + fechaCorta(v.fin) + ').' : '.') : 'Próxima ventana lunar para ' + TIPOS_PL[c.tipo].toLowerCase() + ': del ' + fechaCorta(v.ini) + (v.fin ? ' al ' + fechaCorta(v.fin) + '.' : '.')) + '</span></p>';
+  } else if (fase === 'durante') {
+    h += lista(g.durante);
+    if (info.cat) h += '<div class="g-dato"><div><span>Distancia</span><b>' + esc(info.cat.sep) + '</b></div><div><span>Profundidad</span><b>' + esc(info.cat.prof) + '</b></div></div>';
+  } else {
+    var vida = k.vida;
+    h += '<ol class="g-tl">' + g.despues.map(function (d) {
+      var ahora = vida >= d[0] && vida <= d[1] && c.estado === 'activo';
+      return '<li' + (ahora ? ' class="ahora"' : '') + '><span class="g-d">Día ' + d[0] + '–' + d[1] + (ahora ? ' · <b>usted está aquí</b>' : '') + '</span><p>' + esc(d[2]) + '</p></li>';
+    }).join('') + '</ol>';
+  }
+  return h;
+}
+function abrirGuia(id, fase) {
+  var c = porId(id); if (!c) return;
+  var info = guiaDe(c), k = estadoCosecha(c, hoyISO()), f = fase || faseGuia(k.vida), cc = colorCultivo(c);
+  var html = '<div class="guia" style="--cc:' + cc + '"><div class="guia-h">' + ilusCultivo(c.nombre, c.tipo, 96) + '<div><h2>' + esc(c.nombre) + '</h2><p class="sub" style="margin:2px 0 0">' +
+    (k.vida < 0 ? 'Siembra en ' + plural(-k.vida, 'día', 'días') : 'Día ' + k.vida + ' desde la siembra') + '</p></div></div>' +
+    '<div class="gtabs" role="tablist">' + FASES_G.map(function (p) {
+      return '<button type="button" role="tab" class="gtab" data-f="' + p[0] + '" data-a="gtab" data-id="' + id + '" aria-selected="' + (p[0] === f) + '">' + p[2] + '</button>';
+    }).join('') + '</div><h3 class="g-t">' + FASES_G.filter(function (p) { return p[0] === f; })[0][1] + '</h3>' + panelGuia(c, f, info) +
+    '<p class="hint" style="margin-top:12px">' + (info.especifica ? 'Guía de referencia para clima andino templado-frío.' : 'Guía general para cultivos de ' + TIPOS_PL[c.tipo].toLowerCase() + '. Ajústela a su especie y a su finca.') + '</p>' +
+    '<div class="sheet-actions"><button type="button" class="btn primary" data-a="cerrar">Cerrar</button></div></div>';
+  if ($('#overlay').hidden) abrirSheet(html); else $('#sheet').innerHTML = html;
+}
+
+/* ---------- Archivos: respaldo, CSV, importación ---------- */
+function guardarArchivo(nombre, texto, mime) {
+  var usar = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('downloads') : Promise.resolve(null);
+  return usar.then(function (dl) {
+    if (dl) return dl.save({ filename: nombre, data: texto });
+    var url = URL.createObjectURL(new Blob([texto], { type: mime })), a = document.createElement('a');
+    a.href = url; a.download = nombre; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+  });
+}
+function marcarRespaldo() { S.respaldo = new Date().toISOString(); lsEscribir(); render(); }
+function exportar(tipo) {
+  var json = tipo === 'json', hoy = hoyISO();
+  guardarArchivo(json ? 'huerta-lunar-respaldo-' + hoy + '.json' : 'huerta-lunar-actividades-' + hoy + '.csv', json ? crearRespaldo(S.cultivos) : crearCSV(S.cultivos), json ? 'application/json' : 'text/csv')
+    .then(function () { if (json) marcarRespaldo(); toast(json ? 'Respaldo guardado' : 'Actividades exportadas'); })
+    .catch(function (e) { if (e && e.code === 'declined') return; toast('No se pudo descargar el archivo. Pruebe «Copiar respaldo».'); });
+}
+function copiarRespaldo() {
+  var t = crearRespaldo(S.cultivos), ok = function () { marcarRespaldo(); toast('Respaldo copiado. Péguelo en un mensaje o nota para guardarlo.'); };
+  var fallo = function () {
+    abrirSheet('<h2>Copiar respaldo</h2><p class="sub">Seleccione todo el texto, cópielo y guárdelo en una nota o archivo. Para restaurarlo, guárdelo como archivo .json e impórtelo.</p><div class="field"><label for="cp-t">Respaldo</label><textarea id="cp-t" rows="8" readonly></textarea></div><div class="sheet-actions"><button type="button" class="btn primary" data-a="cerrar">Listo</button></div>');
+    var ta = $('#cp-t'); ta.value = t; ta.focus(); ta.select();
+  };
+  try { navigator.clipboard.writeText(t).then(ok, fallo); } catch (e) { fallo(); }
+}
+function leerArchivo(file) {
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { toast('El archivo es demasiado grande para ser un respaldo.'); return; }
+  var fr = new FileReader();
+  fr.onload = function () {
+    try {
+      var lista = leerRespaldo(String(fr.result));
+      if (!lista.length) { toast('No se encontraron cultivos válidos en el archivo.'); return; }
+      var r = importarLista(lista);
+      toast('Importados: ' + plural(r.nuevos, 'cultivo nuevo', 'cultivos nuevos') + (r.act ? ', ' + r.act + ' actualizados' : '') + (r.omit ? ', ' + r.omit + ' ya existían' : ''), function () { restaurarEstado(r.prev); });
+    } catch (e) { toast(e && e.message ? e.message : 'No se pudo leer el archivo.'); }
+  };
+  fr.onerror = function () { toast('No se pudo leer el archivo.'); };
+  fr.readAsText(file);
+}
+
+/* ---------- Render general y eventos ---------- */
+function pintarEstado() {
+  var p = $('#pill'); if (!p) return;
+  p.dataset.s = S.sync;
+  $('#pill-t').textContent = { nube: 'Sincronizado', local: 'Solo en este dispositivo', conectando: 'Conectando…', error: 'Sin sincronizar' }[S.sync];
+}
+function pintarTabs() {
+  $('#tabs').innerHTML = VISTAS.map(function (v) {
+    return '<button type="button" class="tab" role="tab" data-a="tab" data-v="' + v.k + '" aria-selected="' + (S.vista === v.k) + '">' + ic(v.i) + '<span>' + v.l + '</span></button>';
+  }).join('');
+}
+function render() {
+  var fn = { hoy: vistaHoy, calendario: vistaCalendario, huerta: vistaHuerta, abonos: vistaAbonos, registro: vistaRegistro }[S.vista];
+  $('#vista').innerHTML = '<div class="view' + (S.animar ? ' anim' : '') + '">' + fn() + '</div>';
+  S.animar = false; diaRender = hoyISO();
+  pintarTabs(); pintarEstado();
+  $('#brand-moon').innerHTML = lunaSVG(faseInfo(new Date()).psi, 26, 'b', false);
+}
+function ir(v) {
+  if (v === S.vista) { window.scrollTo(0, 0); return; }
+  S.vista = v; S.animar = true; render(); window.scrollTo(0, 0);
+  try { if (location.hash !== '#' + v) location.hash = v; } catch (e) {}
+}
+var ACC = {
+  tab: function (d) { ir(d.v); },
+  dia: function (d) { S.sel = d.d; render(); },
+  'mes-ant': function () { S.mes.m--; if (S.mes.m < 0) { S.mes.m = 11; S.mes.y--; } render(); },
+  'mes-sig': function () { S.mes.m++; if (S.mes.m > 11) { S.mes.m = 0; S.mes.y++; } render(); },
+  'mes-hoy': function () { var h = hoyISO(); S.sel = h; S.mes = { y: +h.slice(0, 4), m: +h.slice(5, 7) - 1 }; render(); },
+  nuevo: function (d) { formCultivo(null, d.fecha); },
+  editar: function (d) { formCultivo(d.id); },
+  rapido: function (d) { rapido(d.id, d.t, d.via); },
+  evento: function (d) { formEvento(d.id, d.t); },
+  detalle: function (d) { S.exp[d.id] = !S.exp[d.id]; render(); },
+  fin: function (d) { cambiarEstado(d.id); if (d.cerrar) cerrarSheet(); },
+  eliminar: function (d) { confirmarEliminar(d.id); },
+  'eliminar-ok': function (d) { eliminarCultivo(d.id); },
+  'ev-del': function (d) { borrarEvento(d.id, d.e); },
+  filtro: function (d) { S.filtro = d.f; render(); },
+  'exp-json': function () { exportar('json'); },
+  'exp-csv': function () { exportar('csv'); },
+  copiar: copiarRespaldo,
+  importar: function () { $('#file-in').value = ''; $('#file-in').click(); },
+  'mas-hist': function () { S.hf.n += 60; render(); },
+  cerrar: cerrarSheet,
+  semilla: cargarSemilla,
+  fase: function (d) { abrirFase(+d.i); },
+  abono: function (d) { abrirAbono(d.id); },
+  afiltro: function (d) { S.af = d.f; render(); },
+  guia: function (d) { abrirGuia(d.id); },
+  gtab: function (d) { abrirGuia(d.id, d.f); },
+  undo: function () { var f = undoFn; undoFn = null; $('#toast').hidden = true; if (f) f(); }
+};
+document.addEventListener('click', function (e) {
+  if (e.target.id === 'overlay') { cerrarSheet(); return; }
+  var b = e.target.closest ? e.target.closest('[data-a]') : null;
+  if (b && ACC[b.dataset.a]) ACC[b.dataset.a](b.dataset, b);
+});
+document.addEventListener('submit', function (e) {
+  var f = e.target; if (!f.dataset || !f.dataset.form) return;
+  e.preventDefault();
+  if (f.dataset.form === 'cultivo') guardarFormCultivo(f); else if (f.dataset.form === 'evento') guardarFormEvento(f);
+});
+document.addEventListener('change', function (e) {
+  var t = e.target, id = t.id;
+  if (id === 'cal-mes' || id === 'cal-anio') { S.mes.m = +$('#cal-mes').value; S.mes.y = +$('#cal-anio').value; render(); }
+  else if (id === 'hf-c') { S.hf.c = t.value; S.hf.n = 60; render(); }
+  else if (id === 'hf-t') { S.hf.t = t.value; S.hf.n = 60; render(); }
+  else if (id === 'fc-cat') aplicarCatalogo();
+  else if (id === 'fc-tipo' || id === 'fc-fecha') hintCultivo();
+  else if (t.name === 'fe-tipo') ajustarFormEvento();
+  else if (id === 'file-in') leerArchivo(t.files && t.files[0]);
+});
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#overlay').hidden) cerrarSheet(); });
+window.addEventListener('hashchange', function () {
+  var h = (location.hash || '').replace('#', '');
+  if (h !== S.vista && VISTAS.some(function (v) { return v.k === h; })) { S.vista = h; S.animar = true; render(); window.scrollTo(0, 0); }
+});
+document.addEventListener('visibilitychange', function () { if (!document.hidden && $('#overlay').hidden && hoyISO() !== diaRender) { S.sel = hoyISO(); render(); } });
+
+/* ---------- Inicio ---------- */
+cargarLocal();
+(function () { var h = (location.hash || '').replace('#', ''); if (VISTAS.some(function (v) { return v.k === h; })) S.vista = h; })();
+render();
+if (S.migrados) toast('Se recuperaron ' + plural(S.migrados, 'cultivo', 'cultivos') + ' de la versión anterior.');
+iniciarNube();
+
+})();
+</script>
+</body></html>
